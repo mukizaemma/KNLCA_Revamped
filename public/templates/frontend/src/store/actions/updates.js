@@ -1,0 +1,5 @@
+export const GET_ALL_UPDATES = 'GET_ALL_UPDATES';
+export  const GET_AN_UPDATE = 'GET_AN_UPDATE';
+export const CREATE_UPDATE = 'CREATE_UPDATE';
+export const UPDATE_UPDATE = 'UPDATE_UPDATE';
+export const DELETE_UPDATE = 'DELETE_UPDATE';

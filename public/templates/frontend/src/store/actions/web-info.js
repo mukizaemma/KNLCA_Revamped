@@ -1,0 +1,4 @@
+export const GET_ALL_WEB_INFO = 'GET_ALL_WEB_INFO';
+export const UPDATE_WEB_INFO = 'UPDATE_WEB_INFO';
+export const GET_ALL_DASHBOARD_INFO = 'GET_ALL_DASHBOARD_INFO';
+export const GET_ALL_ROLES = 'GET_ALL_ROLES';

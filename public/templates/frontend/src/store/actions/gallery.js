@@ -1,0 +1,4 @@
+export const GET_GALLERY = 'GET_GALLERY';
+export const ADD_TO_GALLERY = 'ADD_TO_GALLERY';
+export const UPDATE_GALLERY = 'UPDATE_GALLERY';
+export const DELETE_GALLERY = 'DELETE_GALLERY';
