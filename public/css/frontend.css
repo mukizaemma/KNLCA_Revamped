@@ -23,7 +23,7 @@
     --shadow-card: 0 4px 24px rgba(26, 46, 78, 0.08);
     --shadow-soft: 0 8px 32px rgba(26, 46, 78, 0.12);
     --section-pad: clamp(48px, 8vw, 72px);
-    --navbar-height: 80px;
+    --navbar-height: 168px;
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -162,17 +162,43 @@ p:last-child { margin-bottom: 0; }
     top: 0;
     z-index: 999;
     width: 100%;
-    padding: 0 30px;
+    padding: 8px 30px 0;
     display: flex;
-    justify-content: space-between;
-    align-items: center;
+    flex-direction: column;
+    align-items: stretch;
     background: var(--white);
     box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    height: var(--navbar-height);
+    height: auto;
 }
-.navbar-logo { width: 150px; height: 50px; display: flex; align-items: center; }
-.navbar-logo img { max-width: 100%; max-height: 100%; object-fit: contain; }
-.navbar-links { display: flex; align-items: center; gap: 28px; }
+.navbar-logo {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+}
+.navbar-logo img {
+    width: 100%;
+    height: auto;
+    max-height: clamp(80px, 14vw, 140px);
+    object-fit: contain;
+    object-position: center;
+}
+.navbar-logo__text {
+    font-weight: 700;
+    color: var(--primary);
+    font-size: clamp(1.25rem, 4vw, 1.75rem);
+}
+.navbar-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    position: relative;
+    padding: 8px 0 12px;
+    min-height: 44px;
+}
+.navbar-links { display: flex; align-items: center; justify-content: center; gap: 28px; flex-wrap: wrap; }
 .navbar-links a {
     text-decoration: none;
     color: var(--black);
@@ -258,7 +284,7 @@ p:last-child { margin-bottom: 0; }
 .navbar-mobile-panel {
     display: none;
     position: fixed;
-    top: 70px;
+    top: var(--navbar-height);
     left: 0;
     right: 0;
     bottom: 0;
@@ -298,9 +324,16 @@ p:last-child { margin-bottom: 0; }
 }
 
 @media (max-width: 991px) {
-    :root { --navbar-height: 70px; }
-    .navbar { padding: 0 16px; height: var(--navbar-height); }
-    .navbar-toggle { display: flex; }
+    :root { --navbar-height: 132px; }
+    .navbar { padding: 6px 16px 0; }
+    .navbar-logo img { max-height: clamp(64px, 18vw, 96px); }
+    .navbar-toggle {
+        display: flex;
+        position: absolute;
+        right: 0;
+        top: 50%;
+        transform: translateY(-50%);
+    }
     .navbar-links .nav-link,
     .navbar-links .nav-dropdown { display: none; }
     .navbar-links .btn-appointment { display: none; }
