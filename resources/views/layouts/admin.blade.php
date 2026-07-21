@@ -22,8 +22,9 @@
     <!-- Customized Bootstrap Stylesheet -->
     <link href="{{ asset('templates/admin/css/bootstrap.min.css') }}" rel="stylesheet">
 
-    <!-- Template Stylesheet (uses hospital brand colors via CSS variables) -->
+    <!-- Template Stylesheet -->
     <link href="{{ asset('templates/admin/css/style.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/admin-brand.css') }}?v={{ file_exists(public_path('css/admin-brand.css')) ? filemtime(public_path('css/admin-brand.css')) : 1 }}" rel="stylesheet">
 
     <!-- Summernote WYSIWYG for long text fields -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.20/summernote-lite.min.css" rel="stylesheet">

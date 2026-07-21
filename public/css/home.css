@@ -927,38 +927,68 @@
 /* Programs */
 .home-programs {
     background: var(--white);
+    width: 100%;
+}
+.home-programs .home-section__inner {
+    max-width: none;
+    width: 100%;
+    padding-inline: clamp(20px, 4vw, 56px);
+    box-sizing: border-box;
 }
 .home-programs__layout {
     display: grid;
-    grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.15fr);
-    gap: clamp(28px, 4vw, 48px);
-    align-items: center;
+    grid-template-columns: minmax(220px, 0.72fr) minmax(0, 1.55fr);
+    gap: clamp(32px, 5vw, 64px);
+    align-items: stretch;
+    width: 100%;
 }
 @media (max-width: 900px) {
     .home-programs__layout { grid-template-columns: 1fr; gap: 28px; }
 }
+.home-programs__copy {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    max-width: 28rem;
+}
 .home-programs__copy .section-heading { margin-bottom: 8px; }
 .home-programs__title {
-    font-size: clamp(1.45rem, 2.8vw, 1.9rem);
+    font-size: clamp(1.55rem, 3vw, 2.15rem);
     font-weight: 700;
     color: var(--navy);
-    margin: 0 0 12px;
+    margin: 0 0 14px;
     line-height: 1.25;
 }
 .home-programs__text {
     color: var(--text-muted);
     line-height: 1.7;
-    margin: 0 0 22px;
-    max-width: 28rem;
-    font-size: 0.98rem;
+    margin: 0 0 26px;
+    max-width: none;
+    font-size: 1.02rem;
 }
 .home-programs__cards {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 18px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: clamp(18px, 2.5vw, 28px);
+    width: 100%;
+    min-width: 0;
 }
 @media (max-width: 540px) {
-    .home-programs__cards { grid-template-columns: 1fr; max-width: 360px; }
+    .home-programs__cards {
+        grid-template-columns: 1fr;
+        max-width: none;
+    }
+}
+.home-programs .level-card {
+    min-height: 100%;
+}
+.home-programs .level-card__media {
+    aspect-ratio: 5 / 4;
+    min-height: clamp(220px, 28vw, 340px);
+}
+.home-programs .level-card__label {
+    padding: clamp(16px, 2vw, 22px) clamp(18px, 2vw, 24px);
+    font-size: clamp(1.05rem, 1.5vw, 1.2rem);
 }
 .level-card {
     display: flex;

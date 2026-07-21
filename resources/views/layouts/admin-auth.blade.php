@@ -24,6 +24,7 @@
 
     <!-- Template Stylesheet -->
     <link href="{{ asset('templates/admin/css/style.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/admin-brand.css') }}?v={{ file_exists(public_path('css/admin-brand.css')) ? filemtime(public_path('css/admin-brand.css')) : 1 }}" rel="stylesheet">
     
     @livewireStyles
 </head>

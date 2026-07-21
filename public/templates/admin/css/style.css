@@ -1,8 +1,11 @@
 /********** Template CSS **********/
 :root {
-    /* School brand colors */
-    --primary: #12223a;
-    --secondary: #fbb040;
+    /* School brand colors — match logo / public site */
+    --navy: #1A2E4E;
+    --navy-dark: #0B2545;
+    --gold: #F9A825;
+    --primary: #1A2E4E;
+    --secondary: #F9A825;
     --light: #F3F6F9;
     --dark: #191C24;
 }
@@ -187,7 +190,17 @@
     color: var(--primary);
 }
 
-.content .navbar .sidebar-toggler,
+.content .navbar .sidebar-toggler {
+    width: 40px;
+    height: 40px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--primary);
+    color: #fff;
+    border-radius: 40px;
+}
+
 .content .navbar .navbar-nav .nav-link i {
     width: 40px;
     height: 40px;

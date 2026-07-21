@@ -1,0 +1,193 @@
+/* KNLCA admin brand — navy & gold (match public site / logo) */
+:root {
+    --navy: #1A2E4E;
+    --navy-dark: #0B2545;
+    --navy-soft: #2A4572;
+    --gold: #F9A825;
+    --gold-dark: #E09410;
+    --gold-light: rgba(249, 168, 37, 0.18);
+
+    --primary: var(--navy);
+    --secondary: var(--gold);
+    --light: #F3F6F9;
+    --dark: #191C24;
+
+    --bs-primary: #1A2E4E;
+    --bs-primary-rgb: 26, 46, 78;
+    --bs-secondary: #F9A825;
+    --bs-secondary-rgb: 249, 168, 37;
+    --bs-link-color: #1A2E4E;
+    --bs-link-hover-color: #0B2545;
+}
+
+/* Bootstrap primary utilities → navy */
+.text-primary { color: var(--navy) !important; }
+.bg-primary { background-color: var(--navy) !important; }
+.border-primary { border-color: var(--navy) !important; }
+
+.btn-primary {
+    color: #fff !important;
+    background-color: var(--navy) !important;
+    border-color: var(--navy) !important;
+}
+.btn-primary:hover,
+.btn-primary:focus,
+.btn-primary:active,
+.btn-primary.active,
+.show > .btn-primary.dropdown-toggle {
+    color: #fff !important;
+    background-color: var(--navy-dark) !important;
+    border-color: var(--navy-dark) !important;
+}
+.btn-primary:disabled,
+.btn-primary.disabled {
+    background-color: var(--navy-soft) !important;
+    border-color: var(--navy-soft) !important;
+}
+
+.btn-outline-primary {
+    color: var(--navy) !important;
+    border-color: var(--navy) !important;
+    background-color: transparent !important;
+}
+.btn-outline-primary:hover,
+.btn-outline-primary:focus,
+.btn-outline-primary:active,
+.btn-outline-primary.active {
+    color: #fff !important;
+    background-color: var(--navy) !important;
+    border-color: var(--navy) !important;
+}
+
+.btn-secondary {
+    color: var(--navy) !important;
+    background-color: var(--gold) !important;
+    border-color: var(--gold) !important;
+}
+.btn-secondary:hover,
+.btn-secondary:focus,
+.btn-secondary:active {
+    color: var(--navy) !important;
+    background-color: var(--gold-dark) !important;
+    border-color: var(--gold-dark) !important;
+}
+
+a:not(.btn):not(.nav-link):not(.dropdown-item):not(.navbar-brand) {
+    color: var(--navy);
+}
+a:not(.btn):not(.nav-link):not(.dropdown-item):not(.navbar-brand):hover {
+    color: var(--navy-dark);
+}
+
+.nav-pills .nav-link.active,
+.nav-pills .show > .nav-link {
+    background-color: var(--navy) !important;
+    color: #fff !important;
+}
+.nav-pills .nav-link:not(.active) {
+    color: var(--navy);
+}
+
+.page-item.active .page-link {
+    background-color: var(--navy) !important;
+    border-color: var(--navy) !important;
+    color: #fff !important;
+}
+.page-link {
+    color: var(--navy);
+}
+.page-link:hover {
+    color: var(--navy-dark);
+}
+
+.badge.bg-primary,
+.badge-primary {
+    background-color: var(--navy) !important;
+}
+
+.form-check-input:checked {
+    background-color: var(--navy) !important;
+    border-color: var(--navy) !important;
+}
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--navy-soft) !important;
+    box-shadow: 0 0 0 0.2rem rgba(26, 46, 78, 0.18) !important;
+}
+
+.spinner-border.text-primary {
+    color: var(--navy) !important;
+    border-color: currentColor;
+    border-right-color: transparent;
+}
+
+.progress-bar {
+    background-color: var(--navy) !important;
+}
+
+.list-group-item.active {
+    background-color: var(--navy) !important;
+    border-color: var(--navy) !important;
+}
+
+.alert-primary {
+    color: var(--navy-dark);
+    background-color: #e8eef5;
+    border-color: #c5d0e0;
+}
+
+/* Sidebar & chrome accents */
+.sidebar .navbar-brand h3 {
+    color: var(--navy) !important;
+    font-weight: 700;
+}
+.sidebar .navbar-brand h3 i {
+    color: var(--gold);
+}
+
+.sidebar .navbar .navbar-nav .nav-link:hover,
+.sidebar .navbar .navbar-nav .nav-link.active {
+    color: var(--navy);
+    border-color: var(--gold);
+}
+
+.sidebar .navbar .navbar-nav .nav-link.active i {
+    background: var(--gold-light);
+    color: var(--navy);
+}
+
+.content .navbar .sidebar-toggler {
+    background: var(--navy) !important;
+    color: #fff !important;
+}
+.content .navbar .sidebar-toggler:hover {
+    background: var(--navy-dark) !important;
+}
+
+.content .navbar .navbar-nav .nav-link:hover,
+.content .navbar .navbar-nav .nav-link.active {
+    color: var(--navy);
+}
+
+footer a,
+.footer a {
+    color: var(--navy) !important;
+}
+
+/* Dashboard / card icon accent */
+.bg-light .fa.text-primary,
+.bg-white .fa.text-primary,
+.card .fa.text-primary {
+    color: var(--navy) !important;
+}
+
+/* Soft gold highlight for secondary actions */
+.btn-outline-warning {
+    color: var(--navy-dark) !important;
+    border-color: var(--gold) !important;
+}
+.btn-outline-warning:hover {
+    background-color: var(--gold) !important;
+    border-color: var(--gold) !important;
+    color: var(--navy) !important;
+}
