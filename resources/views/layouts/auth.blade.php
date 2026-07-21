@@ -41,7 +41,7 @@
                 @if($authTagline !== '')
                     <p class="auth-shell__tagline">{{ $authTagline }}</p>
                 @endif
-                <p class="auth-shell__welcome">Welcome back. Sign in to manage your account or explore our school community.</p>
+                <p class="auth-shell__welcome">Sign in to your account, register to stay connected, or reset your password securely.</p>
                 <a href="{{ route('home') }}" class="auth-shell__home-link">&larr; Back to website</a>
             </div>
         </aside>

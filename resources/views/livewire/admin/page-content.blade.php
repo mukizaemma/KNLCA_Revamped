@@ -16,10 +16,10 @@
         @if (session()->has('message'))
             <div class="alert alert-success">{{ session('message') }}</div>
         @endif
-        <p class="text-muted small">Edit headings, intros, and static text shown on public pages. Lists (programs, staff, gallery, etc.) are managed in their own admin menus.</p>
+        <p class="text-muted small">Edit headings, intros, core values, and page headers. Lists (programs, staff, gallery, partners) stay in their own admin menus.</p>
 
         <ul class="nav nav-pills flex-wrap gap-1 mb-4">
-            @foreach(['global' => 'Global', 'home' => 'Home', 'about' => 'About', 'facilities' => 'Facilities', 'contact' => 'Contact', 'departments' => 'Academics', 'activities' => 'Activities', 'gallery' => 'Gallery', 'careers' => 'Careers', 'leadership' => 'Staff page', 'feedback' => 'Feedback', 'registration' => 'Register'] as $key => $label)
+            @foreach(['global' => 'Global', 'home' => 'Home', 'about' => 'About', 'headers' => 'Page Headers', 'facilities' => 'Facilities', 'contact' => 'Contact', 'departments' => 'Academics', 'activities' => 'Activities', 'gallery' => 'Gallery', 'careers' => 'Careers', 'leadership' => 'Staff page', 'feedback' => 'Feedback', 'registration' => 'Register'] as $key => $label)
                 <li class="nav-item">
                     <button type="button" class="nav-link {{ $activeTab === $key ? 'active' : '' }}" wire:click="setTab('{{ $key }}')">{{ $label }}</button>
                 </li>
@@ -38,7 +38,6 @@
                             <small class="text-muted">Short school line shown in the top bar and sign-in page.</small>
                         </div>
                     </div>
-                    <p class="text-muted small mb-3">Page hero quotes and captions are set per page under <strong>Settings → Page Headers</strong> (Caption column).</p>
                     <div class="mb-3"><label class="form-label">Footer menu heading</label>
                         <input type="text" class="form-control" wire:model.defer="sections.global.footer_menu_heading" style="max-width:240px;"></div>
                     <div class="mb-0"><label class="form-label">Developer credit (HTML allowed)</label>
@@ -72,7 +71,8 @@
                         <div class="col-md-4"><input type="text" class="form-control form-control-sm" wire:model.defer="sections.home.curriculum_label"></div>
                         <div class="col-md-8"><input type="text" class="form-control form-control-sm" wire:model.defer="sections.home.curriculum_title"></div>
                     </div>
-                    <textarea class="form-control summernote mb-3" rows="2" wire:model.defer="sections.home.curriculum_intro"></textarea>
+                    <textarea class="form-control summernote mb-2" rows="2" wire:model.defer="sections.home.curriculum_intro"></textarea>
+                    <input type="text" class="form-control form-control-sm mb-3" wire:model.defer="sections.home.curriculum_subtitle" placeholder="Curriculum subtitle">
                     @foreach($sections['home']['curriculum_pillars'] ?? [] as $idx => $pillar)
                         <div class="border rounded p-2 mb-2" wire:key="pillar-{{ $idx }}">
                             <div class="d-flex justify-content-between mb-1">
@@ -85,7 +85,7 @@
                     @endforeach
                 </div></div>
                 <div class="card border-0 shadow-sm mb-3"><div class="card-body">
-                    <h6 class="fw-bold">Programs &amp; news</h6>
+                    <h6 class="fw-bold">Programs</h6>
                     <div class="row g-2 mb-2">
                         <div class="col-md-4"><input type="text" class="form-control form-control-sm" wire:model.defer="sections.home.programs_label" placeholder="Programs label"></div>
                         <div class="col-md-8"><input type="text" class="form-control form-control-sm" wire:model.defer="sections.home.programs_title"></div>
@@ -93,17 +93,49 @@
                         <div class="col-md-6"><input type="text" class="form-control form-control-sm" wire:model.defer="sections.home.programs_link_text"></div>
                         <div class="col-md-6"><input type="text" class="form-control form-control-sm" wire:model.defer="sections.home.programs_card_fallback"></div>
                     </div>
-                    <hr>
+                </div></div>
+                <div class="card border-0 shadow-sm mb-3"><div class="card-body">
+                    <h6 class="fw-bold">Core values section</h6>
                     <div class="row g-2">
-                        <div class="col-md-4"><input type="text" class="form-control form-control-sm" wire:model.defer="sections.home.why_choose_label"></div>
-                        <div class="col-md-8"><input type="text" class="form-control form-control-sm" wire:model.defer="sections.home.why_choose_empty" placeholder="Empty state hint"></div>
+                        <div class="col-md-4"><input type="text" class="form-control form-control-sm" wire:model.defer="sections.home.why_choose_label" placeholder="Label"></div>
+                        <div class="col-md-8"><input type="text" class="form-control form-control-sm" wire:model.defer="sections.home.why_choose_title" placeholder="Title"></div>
+                        <div class="col-12"><input type="text" class="form-control form-control-sm" wire:model.defer="sections.home.why_choose_empty" placeholder="Empty state hint"></div>
+                    </div>
+                    <p class="small text-muted mt-2 mb-0">Value cards are edited under the <strong>About</strong> tab (synced to the home values section).</p>
+                </div></div>
+                <div class="card border-0 shadow-sm mb-3"><div class="card-body">
+                    <h6 class="fw-bold d-flex justify-content-between">Explore Our School
+                        <button type="button" class="btn btn-sm btn-primary" wire:click="addExploreCard">Add card</button>
+                    </h6>
+                    <div class="row g-2 mb-3">
+                        <div class="col-md-4"><input type="text" class="form-control form-control-sm" wire:model.defer="sections.home.explore_label" placeholder="Label"></div>
+                        <div class="col-md-8"><input type="text" class="form-control form-control-sm" wire:model.defer="sections.home.explore_title" placeholder="Title"></div>
+                        <div class="col-12"><textarea class="form-control form-control-sm" rows="2" wire:model.defer="sections.home.explore_subtitle" placeholder="Subtitle"></textarea></div>
+                        <div class="col-md-6"><input type="text" class="form-control form-control-sm" wire:model.defer="sections.home.explore_link_text" placeholder="Link text"></div>
+                    </div>
+                    @foreach($sections['home']['explore_cards'] ?? [] as $idx => $card)
+                        <div class="border rounded p-2 mb-2" wire:key="explore-{{ $idx }}">
+                            <div class="d-flex justify-content-between mb-1">
+                                <small class="text-muted">Card {{ $idx + 1 }}</small>
+                                <button type="button" class="btn btn-sm btn-outline-danger" wire:click="removeExploreCard({{ $idx }})"><i class="fa fa-times"></i></button>
+                            </div>
+                            <div class="row g-2">
+                                <div class="col-md-4"><input type="text" class="form-control form-control-sm" wire:model.defer="sections.home.explore_cards.{{ $idx }}.title" placeholder="Title"></div>
+                                <div class="col-md-4"><input type="text" class="form-control form-control-sm" wire:model.defer="sections.home.explore_cards.{{ $idx }}.url" placeholder="/facilities"></div>
+                                <div class="col-md-4"><input type="text" class="form-control form-control-sm" wire:model.defer="sections.home.explore_cards.{{ $idx }}.key" placeholder="Key (optional)"></div>
+                                <div class="col-12"><textarea class="form-control form-control-sm" rows="2" wire:model.defer="sections.home.explore_cards.{{ $idx }}.description" placeholder="Description"></textarea></div>
+                            </div>
+                        </div>
+                    @endforeach
+                </div></div>
+                <div class="card border-0 shadow-sm mb-3"><div class="card-body">
+                    <h6 class="fw-bold">Gallery / news strip</h6>
+                    <div class="row g-2">
                         <div class="col-md-4"><input type="text" class="form-control form-control-sm" wire:model.defer="sections.home.news_label"></div>
                         <div class="col-md-4"><input type="text" class="form-control form-control-sm" wire:model.defer="sections.home.news_title"></div>
-                        <div class="col-md-4"><input type="text" class="form-control form-control-sm" wire:model.defer="sections.home.news_category"></div>
-                        <div class="col-md-6"><input type="text" class="form-control form-control-sm" wire:model.defer="sections.home.news_link_text"></div>
+                        <div class="col-md-4"><input type="text" class="form-control form-control-sm" wire:model.defer="sections.home.news_link_text"></div>
                         <div class="col-12"><textarea class="form-control form-control-sm summernote" rows="2" data-summernote-height="160" wire:model.defer="sections.home.news_empty"></textarea></div>
                     </div>
-                    <p class="small text-muted mt-2 mb-0">“Why choose us” cards: Admin → Settings → Value cards. Home CTA block: Settings → School Info (cta fields).</p>
                 </div></div>
             @endif
 
@@ -118,6 +150,49 @@
                         @endif
                     </div>
                 @endforeach
+
+                <div class="card border-0 shadow-sm mt-3"><div class="card-body">
+                    <h6 class="fw-bold d-flex justify-content-between">Core value cards
+                        <button type="button" class="btn btn-sm btn-primary" wire:click="addCoreValueCard">Add card</button>
+                    </h6>
+                    <p class="small text-muted">Shown on Home (values section) and About. Saving also updates Settings value cards.</p>
+                    @foreach($sections['about']['core_value_cards'] ?? [] as $idx => $card)
+                        <div class="border rounded p-2 mb-2" wire:key="value-{{ $idx }}">
+                            <div class="d-flex justify-content-between mb-1">
+                                <small class="text-muted">Value {{ $idx + 1 }}</small>
+                                <button type="button" class="btn btn-sm btn-outline-danger" wire:click="removeCoreValueCard({{ $idx }})"><i class="fa fa-times"></i></button>
+                            </div>
+                            <input type="text" class="form-control form-control-sm mb-1" wire:model.defer="sections.about.core_value_cards.{{ $idx }}.name" placeholder="Name">
+                            <textarea class="form-control form-control-sm summernote" rows="2" data-summernote-height="140" wire:model.defer="sections.about.core_value_cards.{{ $idx }}.description" placeholder="Description"></textarea>
+                        </div>
+                    @endforeach
+                </div></div>
+            @endif
+
+            @if($activeTab === 'headers')
+                <div class="card border-0 shadow-sm mb-3"><div class="card-body">
+                    <p class="text-muted small">Edit page hero titles and captions. Header background images can still be uploaded in Settings → Page Headers.</p>
+                    @foreach($headers as $index => $header)
+                        <div class="border rounded p-3 mb-3" wire:key="header-{{ $header['key'] }}">
+                            <div class="fw-semibold mb-2">{{ $header['label'] }} <span class="text-muted small">({{ $header['key'] }})</span></div>
+                            <div class="row g-2">
+                                <div class="col-md-5">
+                                    <label class="form-label small text-muted">Title</label>
+                                    <input type="text" class="form-control form-control-sm" wire:model.defer="headers.{{ $index }}.title">
+                                </div>
+                                <div class="col-md-7">
+                                    <label class="form-label small text-muted">Caption</label>
+                                    <input type="text" class="form-control form-control-sm" wire:model.defer="headers.{{ $index }}.caption">
+                                </div>
+                            </div>
+                            @if(!empty($header['image_path']))
+                                <div class="mt-2">
+                                    <img src="{{ asset($header['image_path']) }}" alt="" class="img-fluid rounded border" style="max-height: 64px;">
+                                </div>
+                            @endif
+                        </div>
+                    @endforeach
+                </div></div>
             @endif
 
             @if(in_array($activeTab, ['facilities', 'contact', 'departments', 'activities', 'gallery', 'careers', 'leadership', 'feedback']))
@@ -128,7 +203,7 @@
                             <label class="form-label small text-muted">{{ str_replace('_', ' ', ucfirst($key)) }}</label>
                             @if($activeTab === 'careers' && $key === 'body')
                                 <textarea class="form-control summernote" rows="4" wire:model.defer="sections.{{ $activeTab }}.{{ $key }}"></textarea>
-                            @elseif(strlen((string)$value) > 80 || in_array($key, ['section_intro', 'form_subtitle', 'empty', 'cta_text', 'section_subtitle']))
+                            @elseif(strlen((string)$value) > 80 || in_array($key, ['section_intro', 'form_subtitle', 'empty', 'cta_text', 'section_subtitle', 'submission_help', 'whatsapp_help', 'email_help']))
                                 <textarea class="form-control form-control-sm summernote" rows="2" data-summernote-height="180" wire:model.defer="sections.{{ $activeTab }}.{{ $key }}"></textarea>
                             @else
                                 <input type="text" class="form-control form-control-sm" wire:model.defer="sections.{{ $activeTab }}.{{ $key }}">

@@ -31,11 +31,12 @@ class Login extends Component
         }
 
         session()->regenerate();
+        session(['user_session_version' => (int) Auth::user()->session_version]);
 
         $user = Auth::user();
         
         // Redirect based on user role
-        if (in_array($user->role, ['super_admin', 'website_admin'])) {
+        if ($user->isSuperAdmin() || $user->role === 'website_admin') {
             return redirect()->intended(route('admin.dashboard'));
         }
         

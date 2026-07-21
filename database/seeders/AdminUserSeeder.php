@@ -2,42 +2,44 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-use Illuminate\Database\Seeder;
 use App\Models\User;
+use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
 class AdminUserSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
+    public const SUPER_ADMIN_EMAIL = 'admin@iremetech.com';
+
     public function run(): void
     {
-        // Create Super Admin
-        User::firstOrCreate(
-            ['email' => 'admin@iremetech.com'],
+        User::updateOrCreate(
+            ['email' => self::SUPER_ADMIN_EMAIL],
             [
                 'name' => 'Super Admin',
-                'email' => 'admin@iremetech.com',
                 'password' => Hash::make('Ireme@2021'),
                 'role' => 'super_admin',
+                'session_version' => 0,
             ]
         );
 
-        // Create Website Admin
+        // Demote any other accounts incorrectly marked as super_admin.
+        User::query()
+            ->where('role', 'super_admin')
+            ->where('email', '!=', self::SUPER_ADMIN_EMAIL)
+            ->update(['role' => 'website_admin']);
+
         User::firstOrCreate(
-            ['email' => 'admin@buffalovillage.com'],
+            ['email' => 'admin@knlca.ac.rw'],
             [
                 'name' => 'Website Admin',
-                'email' => 'admin@buffalovillage.com',
                 'password' => Hash::make('password'),
                 'role' => 'website_admin',
+                'session_version' => 0,
             ]
         );
 
-        $this->command->info('Admin users created successfully!');
-        $this->command->info('Super Admin: admin@iremetech.com / Ireme@2021');
-        $this->command->info('Website Admin: admin@buffalovillage.com / password');
+        $this->command?->info('Admin users ready.');
+        $this->command?->info('Super Admin: '.self::SUPER_ADMIN_EMAIL.' / Ireme@2021');
+        $this->command?->info('Website Admin: admin@knlca.ac.rw / password');
     }
 }

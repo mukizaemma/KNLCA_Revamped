@@ -32,8 +32,8 @@ class Login extends Component
 
         $user = Auth::user();
         
-        // Check if user has admin role
-        if (!in_array($user->role, ['super_admin', 'website_admin'])) {
+        // Only real super admin or website_admin may use admin login
+        if (! $user->isSuperAdmin() && $user->role !== 'website_admin') {
             Auth::logout();
             throw ValidationException::withMessages([
                 'email' => __('You do not have permission to access the admin panel.'),
@@ -41,6 +41,7 @@ class Login extends Component
         }
 
         session()->regenerate();
+        session(['user_session_version' => (int) $user->session_version]);
 
         return redirect()->route('admin.dashboard');
     }

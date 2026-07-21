@@ -43,6 +43,12 @@ class Home extends Component
                 ? array_values(array_filter($whyChooseCards, fn ($c) => ! empty($c['name'] ?? null)))
                 : [];
         }
+        if (empty($whyChooseCards)) {
+            $fromContent = \App\Support\SiteContent::get($settings, 'about.core_value_cards', []);
+            $whyChooseCards = is_array($fromContent)
+                ? array_values(array_filter($fromContent, fn ($c) => ! empty($c['name'] ?? null)))
+                : [];
+        }
 
         $facilityImage = Facility::query()
             ->where('is_active', true)

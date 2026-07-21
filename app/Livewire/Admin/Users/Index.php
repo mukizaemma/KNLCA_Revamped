@@ -22,23 +22,17 @@ class Index extends Component
     public string $email = '';
     public ?string $phone = null;
     public ?string $biography = null;
-    public string $role = 'clinical_staff';
+    public string $role = 'website_admin';
     public ?string $password = null;
 
     protected function allowedRolesForCurrentUser(): array
     {
-        $userRole = auth()->user()->role ?? null;
-
-        if ($userRole === 'super_admin') {
-            return ['super_admin', 'website_admin', 'management_staff', 'clinical_staff', 'guest'];
+        if (! auth()->user()?->isSuperAdmin()) {
+            return [];
         }
 
-        // website_admin can only manage staff members
-        if ($userRole === 'website_admin') {
-            return ['management_staff', 'clinical_staff'];
-        }
-
-        return [];
+        // Super admin may create website admins and guests — never another super_admin.
+        return ['website_admin', 'management_staff', 'clinical_staff', 'guest'];
     }
 
     protected function rules(): array
@@ -52,6 +46,11 @@ class Index extends Component
                 'email',
                 'max:255',
                 Rule::unique('users', 'email')->ignore($this->editingId),
+                function ($attribute, $value, $fail) {
+                    if (strcasecmp((string) $value, User::SUPER_ADMIN_EMAIL) === 0 && $this->editingId !== auth()->id()) {
+                        $fail('This email is reserved for the system super admin.');
+                    }
+                },
             ],
             'phone' => ['nullable', 'string', 'max:50'],
             'biography' => ['nullable', 'string'],
@@ -96,7 +95,7 @@ class Index extends Component
         $this->email = $user->email;
         $this->phone = $user->phone ?? '';
         $this->biography = $user->biography ?? '';
-        $this->role = $user->role;
+        $this->role = $user->role === 'super_admin' ? 'website_admin' : $user->role;
         $this->password = null;
         $this->showFormModal = true;
     }
@@ -115,13 +114,25 @@ class Index extends Component
             'role' => $data['role'],
         ];
 
-        if (!empty($data['password'])) {
+        if (! empty($data['password'])) {
             $payload['password'] = $data['password'];
         }
 
         if ($this->editingId) {
             $user = $this->findManagedUserOrFail($this->editingId);
+
+            if ($user->isSuperAdmin()) {
+                session()->flash('error', 'The system super admin account cannot be edited here.');
+
+                return;
+            }
+
             $user->update($payload);
+
+            if (! empty($data['password'])) {
+                $user->bumpSessionVersion();
+            }
+
             session()->flash('success', 'User updated successfully.');
         } else {
             User::create($payload);
@@ -133,15 +144,31 @@ class Index extends Component
         $this->showFormModal = false;
     }
 
+    public function forceLogout(int $userId): void
+    {
+        $this->authorizeAccess();
+
+        $user = $this->findManagedUserOrFail($userId);
+
+        if ($user->isSuperAdmin() || auth()->id() === $user->id) {
+            session()->flash('error', 'You cannot force-logout this account.');
+
+            return;
+        }
+
+        $user->bumpSessionVersion();
+        session()->flash('success', 'User will be signed out on their next request.');
+    }
+
     public function delete(int $userId): void
     {
         $this->authorizeAccess();
 
         $user = $this->findManagedUserOrFail($userId);
 
-        // Prevent user from deleting themselves
-        if (auth()->id() === $user->id) {
-            session()->flash('error', 'You cannot delete your own account.');
+        if (auth()->id() === $user->id || $user->isSuperAdmin()) {
+            session()->flash('error', 'You cannot delete this account.');
+
             return;
         }
 
@@ -154,16 +181,17 @@ class Index extends Component
 
     protected function findManagedUserOrFail(int $userId): User
     {
-        $allowedRoles = $this->allowedRolesForCurrentUser();
-
         return User::where('id', $userId)
-            ->whereIn('role', $allowedRoles)
+            ->where(function ($q) {
+                $q->where('email', '!=', User::SUPER_ADMIN_EMAIL)
+                    ->orWhere('id', auth()->id());
+            })
             ->firstOrFail();
     }
 
     protected function authorizeAccess(): void
     {
-        if (empty($this->allowedRolesForCurrentUser())) {
+        if (! auth()->user()?->isSuperAdmin()) {
             abort(403, 'Unauthorized access.');
         }
     }
@@ -174,21 +202,18 @@ class Index extends Component
         $this->email = '';
         $this->phone = '';
         $this->biography = '';
-        $this->role = auth()->user()->role === 'website_admin' ? 'clinical_staff' : 'guest';
+        $this->role = 'website_admin';
         $this->password = '';
     }
 
     public function getUsersProperty()
     {
-        $allowedRoles = $this->allowedRolesForCurrentUser();
-
         $query = User::query()
-            ->whereIn('role', $allowedRoles)
             ->when($this->search, function ($q) {
                 $q->where(function ($sub) {
-                    $sub->where('name', 'like', '%' . $this->search . '%')
-                        ->orWhere('email', 'like', '%' . $this->search . '%')
-                        ->orWhere('phone', 'like', '%' . $this->search . '%');
+                    $sub->where('name', 'like', '%'.$this->search.'%')
+                        ->orWhere('email', 'like', '%'.$this->search.'%')
+                        ->orWhere('phone', 'like', '%'.$this->search.'%');
                 });
             });
 
@@ -196,15 +221,18 @@ class Index extends Component
             $query->where('role', $this->roleFilter);
         }
 
-        return $query->orderBy('name')->paginate(10);
+        return $query->orderByRaw('CASE WHEN email = ? THEN 0 ELSE 1 END', [User::SUPER_ADMIN_EMAIL])
+            ->orderBy('name')
+            ->paginate(10);
     }
 
     public function render()
     {
+        $this->authorizeAccess();
+
         return view('livewire.admin.users.index', [
             'users' => $this->users,
             'allowedRoles' => $this->allowedRolesForCurrentUser(),
         ]);
     }
 }
-

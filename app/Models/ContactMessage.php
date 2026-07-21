@@ -23,5 +23,6 @@ class ContactMessage extends Model
         'visit_date',
         'visit_time',
         'message',
+        'submission_channel',
     ];
 }

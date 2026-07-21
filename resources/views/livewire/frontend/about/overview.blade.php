@@ -221,7 +221,7 @@
                 <div class="alert-success" role="status">Thank you. Your message has been sent and we will respond soon.</div>
             @endif
 
-            <form wire:submit="submitInquiry" class="school-form about-inquire-form" autocomplete="off" novalidate>
+            <form class="school-form about-inquire-form" autocomplete="off" novalidate>
                 <div class="form-row">
                     <div class="form-group">
                         <label for="inquiry_first_name">First name <span class="required">*</span></label>
@@ -276,10 +276,19 @@
                     <textarea id="inquiry_message" wire:model="inquiry_message" class="form-control" rows="5" autocomplete="off" placeholder="Tell us how we can help…"></textarea>
                     @error('inquiry_message')<span class="error">{{ $message }}</span>@enderror
                 </div>
-                <button type="submit" class="btn-primary" wire:loading.attr="disabled">
-                    <span wire:loading.remove wire:target="submitInquiry">Send message</span>
-                    <span wire:loading wire:target="submitInquiry">Sending…</span>
-                </button>
+
+                <p class="submission-channel-help">{{ $siteContent['contact']['submission_help'] ?? 'Choose WhatsApp or Email to submit your message.' }}</p>
+                @error('submission_channel')<span class="error error--block">{{ $message }}</span>@enderror
+                <div class="submit-channel-buttons">
+                    <button type="button" class="btn-submit-channel btn-submit-channel--whatsapp" wire:click="submitInquiry('whatsapp')" wire:loading.attr="disabled" wire:target="submitInquiry">
+                        <span wire:loading.remove wire:target="submitInquiry">Send via WhatsApp</span>
+                        <span wire:loading wire:target="submitInquiry">Submitting…</span>
+                    </button>
+                    <button type="button" class="btn-submit-channel btn-submit-channel--email" wire:click="submitInquiry('email')" wire:loading.attr="disabled" wire:target="submitInquiry">
+                        <span wire:loading.remove wire:target="submitInquiry">Send via Email</span>
+                        <span wire:loading wire:target="submitInquiry">Submitting…</span>
+                    </button>
+                </div>
             </form>
 
             <div class="page-cta about-inquire-cta">

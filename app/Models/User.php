@@ -12,6 +12,8 @@ class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
 
+    public const SUPER_ADMIN_EMAIL = 'admin@iremetech.com';
+
     /**
      * The attributes that are mass assignable.
      *
@@ -24,6 +26,7 @@ class User extends Authenticatable
         'role',
         'phone',
         'biography',
+        'session_version',
     ];
 
     /**
@@ -39,10 +42,29 @@ class User extends Authenticatable
     /**
      * The attributes that should be cast.
      *
-     * @var array<string, string>
+     * @var array<int, string>
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
+        'session_version' => 'integer',
     ];
+
+    public function isSuperAdmin(): bool
+    {
+        return $this->role === 'super_admin'
+            && strcasecmp((string) $this->email, self::SUPER_ADMIN_EMAIL) === 0;
+    }
+
+    public function isWebsiteAdmin(): bool
+    {
+        return $this->role === 'website_admin' || $this->isSuperAdmin();
+    }
+
+    public function bumpSessionVersion(): void
+    {
+        $this->forceFill([
+            'session_version' => ((int) $this->session_version) + 1,
+        ])->save();
+    }
 }

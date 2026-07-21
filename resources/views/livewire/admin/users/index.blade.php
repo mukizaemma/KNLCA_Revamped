@@ -60,12 +60,19 @@
                             </td>
                             <td class="text-center">{{ $user->created_at?->format('Y-m-d') }}</td>
                             <td class="text-end">
-                                <button type="button" class="btn btn-sm btn-outline-primary me-1" wire:click="edit({{ $user->id }})">
-                                    <i class="fa fa-edit"></i>
-                                </button>
-                                <button type="button" class="btn btn-sm btn-outline-danger" wire:click="delete({{ $user->id }})" onclick="return confirm('Are you sure you want to delete this user?')">
-                                    <i class="fa fa-trash"></i>
-                                </button>
+                                @if(! $user->isSuperAdmin())
+                                    <button type="button" class="btn btn-sm btn-outline-warning me-1" title="Force logout" wire:click="forceLogout({{ $user->id }})" wire:confirm="Force this user to sign out on their next request?">
+                                        <i class="fa fa-sign-out-alt"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-outline-primary me-1" wire:click="edit({{ $user->id }})">
+                                        <i class="fa fa-edit"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-outline-danger" wire:click="delete({{ $user->id }})" wire:confirm="Are you sure you want to delete this user?">
+                                        <i class="fa fa-trash"></i>
+                                    </button>
+                                @else
+                                    <span class="badge bg-dark">System</span>
+                                @endif
                             </td>
                         </tr>
                     @empty
@@ -125,7 +132,7 @@
                                 <label class="form-label">
                                     Password
                                     @if($editingId)
-                                        <small class="text-muted">(leave blank to keep current)</small>
+                                        <small class="text-muted">(leave blank to keep current; saving a new password also signs them out)</small>
                                     @endif
                                 </label>
                                 <input type="password" class="form-control" wire:model.defer="password" style="max-width: 280px;">

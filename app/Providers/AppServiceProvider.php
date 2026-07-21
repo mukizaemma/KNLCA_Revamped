@@ -8,6 +8,7 @@ use App\Models\WebsiteSetting;
 use App\Support\SiteContent;
 use App\ContextProviders\Livewire3SafeContextProviderDetector;
 use App\Renderers\Livewire3SafeErrorPageRenderer;
+use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 use Spatie\FlareClient\Flare;
@@ -28,6 +29,16 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        ResetPassword::createUrlUsing(function ($user, string $token) {
+            $isAdmin = in_array($user->role, ['super_admin', 'website_admin'], true);
+            $route = $isAdmin ? 'admin.password.reset' : 'password.reset';
+
+            return url(route($route, [
+                'token' => $token,
+                'email' => $user->email,
+            ], false));
+        });
+
         View::composer('layouts.frontend', function ($view) {
             $settings = WebsiteSetting::first() ?? new WebsiteSetting;
             $view->with('websiteSettings', $settings);

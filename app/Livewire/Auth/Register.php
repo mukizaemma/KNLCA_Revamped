@@ -7,7 +7,6 @@ use Livewire\Attributes\Layout;
 use App\Models\User;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\Password;
 
 #[Layout('layouts.auth')]
@@ -34,13 +33,14 @@ class Register extends Component
         $user = User::create([
             'name' => $this->name,
             'email' => $this->email,
-            'password' => Hash::make($this->password),
-            'role' => 'guest', // Default role for public registration
+            'password' => $this->password,
+            'role' => 'guest',
         ]);
 
         Auth::login($user);
 
         session()->regenerate();
+        session(['user_session_version' => (int) $user->session_version]);
 
         // Guests stay on public pages
         return redirect()->intended(RouteServiceProvider::HOME);

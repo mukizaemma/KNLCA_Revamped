@@ -55,7 +55,7 @@
                     <div class="ms-3">
                         <h6 class="mb-0">{{ Auth::user()->name }}</h6>
                         <span>
-                            @if(Auth::user()->role === 'super_admin')
+                            @if(Auth::user()->isSuperAdmin())
                                 Super Admin
                             @elseif(Auth::user()->role === 'website_admin')
                                 Website Manager
@@ -114,7 +114,7 @@
                     </a>
 
                     {{-- Admin users – only visible to Super Admin --}}
-                    @if(Auth::user()->role === 'super_admin')
+                    @if(Auth::user()->isSuperAdmin())
                         <a href="{{ route('admin.users.index') }}" class="nav-item nav-link {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
                             <i class="fa fa-user-shield me-2"></i>Admin Users
                         </a>

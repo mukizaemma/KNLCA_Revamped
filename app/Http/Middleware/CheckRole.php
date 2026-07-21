@@ -4,32 +4,32 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\Auth;
+use Symfony\Component\HttpFoundation\Response;
 
 class CheckRole
 {
     /**
-     * Handle an incoming request.
-     *
      * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      * @param  string  ...$roles
      */
     public function handle(Request $request, Closure $next, string ...$roles): Response
     {
-        if (!Auth::check()) {
+        if (! Auth::check()) {
             return redirect()->route('admin.login');
         }
 
         $user = Auth::user();
-        
-        // Super admin has access to everything
-        if ($user->role === 'super_admin') {
+
+        // Only the designated super admin email bypasses role checks.
+        if ($user->isSuperAdmin()) {
             return $next($request);
         }
 
-        // Check if user has one of the required roles
-        if (!in_array($user->role, $roles)) {
+        // Treat mis-tagged "super_admin" accounts as website_admin for access.
+        $effectiveRole = $user->role === 'super_admin' ? 'website_admin' : $user->role;
+
+        if (! in_array($effectiveRole, $roles, true)) {
             abort(403, 'Unauthorized access.');
         }
 
