@@ -17,13 +17,13 @@ use Illuminate\Support\Facades\Auth;
 // Public frontend (Livewire SPA-like with wire:navigate)
 Route::get('/', \App\Livewire\Frontend\Home::class)->name('home');
 Route::get('/about', \App\Livewire\Frontend\About::class)->name('about');
-Route::get('/about/mission-vision', \App\Livewire\Frontend\About\MissionVision::class)->name('about.mission-vision');
-Route::get('/about/core-values', \App\Livewire\Frontend\About\CoreValues::class)->name('about.core-values');
-Route::get('/about/staff', \App\Livewire\Frontend\About\Staff::class)->name('about.staff');
-Route::get('/about/history', \App\Livewire\Frontend\About\History::class)->name('about.history');
-Route::get('/about/our-schools', \App\Livewire\Frontend\About\OurSchools::class)->name('about.our-schools');
-Route::get('/about/inquire', \App\Livewire\Frontend\About\Inquire::class)->name('about.inquire');
-Route::redirect('/about#inquire', '/about/inquire');
+Route::redirect('/about/mission-vision', '/about?section=mission-vision')->name('about.mission-vision');
+Route::redirect('/about/core-values', '/about?section=core-values')->name('about.core-values');
+Route::redirect('/about/staff', '/about?section=staff')->name('about.staff');
+Route::redirect('/about/history', '/about?section=history')->name('about.history');
+Route::redirect('/about/our-schools', '/about?section=our-schools')->name('about.our-schools');
+Route::redirect('/about/inquire', '/about?section=inquire')->name('about.inquire');
+Route::redirect('/visit-school', '/about?section=inquire')->name('visit-school');
 Route::get('/contact', \App\Livewire\Frontend\Contact::class)->name('contact');
 Route::get('/departments', \App\Livewire\Frontend\Departments\Index::class)->name('departments.index');
 Route::get('/departments/{department}', \App\Livewire\Frontend\Departments\Show::class)->name('departments.show');
@@ -32,7 +32,6 @@ Route::get('/leadership/{member}/{slug?}', \App\Livewire\Frontend\LeadershipTeam
 Route::get('/gallery', \App\Livewire\Frontend\Gallery\Index::class)->name('gallery.index');
 Route::get('/admissions', \App\Livewire\Frontend\Admissions::class)->name('admissions');
 Route::get('/facilities', \App\Livewire\Frontend\Facilities::class)->name('facilities');
-Route::redirect('/visit-school', '/about/inquire')->name('visit-school');
 Route::get('/school-activities', \App\Livewire\Frontend\SchoolActivities\Index::class)->name('school-activities');
 Route::get('/school-activities/{activity}', \App\Livewire\Frontend\SchoolActivities\Show::class)->name('school-activities.show');
 Route::get('/careers', \App\Livewire\Frontend\Careers::class)->name('careers');

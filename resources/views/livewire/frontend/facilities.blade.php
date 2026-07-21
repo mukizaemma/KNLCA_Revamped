@@ -31,7 +31,7 @@
                 <h3 class="page-cta__title">{{ $f['cta_title'] ?? 'See our campus in person' }}</h3>
                 <p class="page-cta__text">{{ $f['cta_text'] ?? '' }}</p>
                 <div class="page-cta__actions">
-                    <a href="{{ route('about') }}#inquire" class="btn-primary" wire:navigate>{{ $f['cta_btn'] ?? 'Schedule a visit' }}</a>
+                    <a href="{{ url('/about#inquire') }}" class="btn-primary">{{ $f['cta_btn'] ?? 'Schedule a visit' }}</a>
                 </div>
             </div>
         </div>

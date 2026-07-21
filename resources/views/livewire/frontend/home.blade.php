@@ -15,6 +15,8 @@
             'button_url' => null,
         ]]);
         $slideCount = $slideList->count();
+        $pillars = array_slice($h['curriculum_pillars'] ?? [], 0, 3);
+        $exploreCards = $h['explore_cards'] ?? [];
     @endphp
     <div class="hero-slider slider-fullwidth"
          x-data="{
@@ -92,109 +94,192 @@
         @endif
     </div>
 
-    <div class="content">
-        {{-- School overview --}}
-        <section class="welcome-block" id="overview" aria-labelledby="home-overview-title">
-            <h2 id="home-overview-title" class="welcome-block__title section-title">Welcome to {{ optional($settings)->company_name ?? 'Our School' }}</h2>
-            @if($settings && $settings->home_background_text)
-                <div class="welcome-block__desc lead">{!! $settings->home_background_text !!}</div>
-            @else
-                <p class="welcome-block__desc lead">{{ $h['overview_fallback'] ?? '' }}</p>
-            @endif
-            <p style="text-align:center;margin-top:20px;">
-                <a href="{{ route('about') }}" class="btn-outline" wire:navigate>{{ $h['overview_link_text'] ?? 'Read more about us' }}</a>
-            </p>
-        </section>
-
-        {{-- Curriculum overview --}}
-        <section class="ace-strip" id="curriculum" aria-labelledby="ace-strip-title">
-            <div class="ace-strip__inner">
-                <div class="ace-strip__intro">
-                    <p class="section-heading" style="color: var(--primary);">{{ $h['curriculum_label'] ?? 'Curriculum overview' }}</p>
-                    <h2 id="ace-strip-title">{{ $h['curriculum_title'] ?? 'Accredited ACE Curriculum' }}</h2>
-                    <p>{{ $h['curriculum_intro'] ?? '' }}</p>
+    {{-- Curriculum overview --}}
+    <section class="home-section home-curriculum" id="curriculum" aria-labelledby="ace-curriculum-title">
+        <div class="content home-section__inner">
+            <header class="home-section__head">
+                <div class="home-section__title-row">
+                    <span class="home-section__rule" aria-hidden="true"></span>
+                    <h2 id="ace-curriculum-title" class="home-section__title">{{ $h['curriculum_title'] ?? 'ACE Curriculum' }}</h2>
+                    <span class="home-section__rule" aria-hidden="true"></span>
                 </div>
-                <div class="ace-pillars">
-                    @foreach($h['curriculum_pillars'] ?? [] as $pillar)
-                        <article class="ace-pillar">
-                            <div class="ace-pillar__icon" aria-hidden="true">
-                                <svg viewBox="0 0 48 48" fill="none"><path d="M24 4L6 14v20l18 10 18-10V14L24 4z" stroke="currentColor" stroke-width="2"/></svg>
+                <p class="home-section__subtitle">{{ $h['curriculum_subtitle'] ?? ($h['curriculum_intro'] ?? '') }}</p>
+            </header>
+
+            @if(!empty($pillars))
+                <div class="ace-feature-grid">
+                    @foreach($pillars as $i => $pillar)
+                        <article class="ace-feature-card">
+                            <div class="ace-feature-card__cap" aria-hidden="true"></div>
+                            <div class="ace-feature-card__icon" aria-hidden="true">
+                                @if($i === 0)
+                                    <svg viewBox="0 0 48 48" fill="none"><circle cx="24" cy="24" r="14" stroke="currentColor" stroke-width="2.5"/><circle cx="24" cy="24" r="7" stroke="currentColor" stroke-width="2.5"/><circle cx="24" cy="24" r="2.5" fill="currentColor"/></svg>
+                                @elseif($i === 1)
+                                    <svg viewBox="0 0 48 48" fill="none"><path d="M24 10v28M24 10c-6 0-12 2-12 6v22c0-4 6-6 12-6M24 10c6 0 12 2 12 6v22c0-4-6-6-12-6" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"/><path d="M24 18v4" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
+                                @else
+                                    <svg viewBox="0 0 48 48" fill="none"><path d="M24 8a10 10 0 00-6 18c.8 1.2 1.2 2.4 1.2 3.6V32h9.6v-2.4c0-1.2.4-2.4 1.2-3.6A10 10 0 0024 8z" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"/><path d="M20 36h8M21 40h6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
+                                @endif
                             </div>
-                            @if(!empty($pillar['title']))
-                                <h3>{{ $pillar['title'] }}</h3>
+                            <div class="ace-feature-card__body">
+                                @if(!empty($pillar['title']))
+                                    <h3>{{ $pillar['title'] }}</h3>
+                                @endif
+                                @if(!empty($pillar['description']))
+                                    <p>{{ $pillar['description'] }}</p>
+                                @endif
+                                <a href="{{ route('departments.index') }}" class="ace-feature-card__link" wire:navigate>
+                                    {{ $h['curriculum_link_text'] ?? 'Learn more' }} →
+                                </a>
+                            </div>
+                        </article>
+                    @endforeach
+                </div>
+            @endif
+        </div>
+    </section>
+
+    {{-- Programs --}}
+    @if($departments->isNotEmpty())
+        <section class="home-section home-programs" id="programs" aria-labelledby="home-programs-title">
+            <div class="content home-section__inner">
+                <div class="home-programs__layout">
+                    <div class="home-programs__copy">
+                        <p class="section-heading">{{ $h['programs_label'] ?? 'Programs' }}</p>
+                        <h2 id="home-programs-title" class="home-programs__title">{{ $h['programs_title'] ?? 'Nursery & Primary Programs' }}</h2>
+                        <p class="home-programs__text">{{ $h['programs_subtitle'] ?? ($h['curriculum_intro'] ?? '') }}</p>
+                        <a href="{{ route('departments.index') }}" class="btn-secondary" wire:navigate>
+                            {{ $h['programs_link_text'] ?? 'View all programs' }}
+                        </a>
+                    </div>
+                    <div class="home-programs__cards">
+                        @foreach($departments->take(2) as $department)
+                            <a href="{{ route('departments.show', ['department' => $department->slug ?: $department->id]) }}" class="level-card" wire:navigate>
+                                <div class="level-card__media">
+                                    @if($department->cover_image)
+                                        <img src="{{ asset($department->cover_image) }}" alt="{{ $department->name }}" loading="lazy">
+                                    @else
+                                        <div class="level-card__placeholder"></div>
+                                    @endif
+                                </div>
+                                <span class="level-card__label">
+                                    {{ $department->name }}
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M9 18l6-6-6-6"/></svg>
+                                </span>
+                            </a>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+        </section>
+    @endif
+
+    {{-- Core values — full-bleed parallax --}}
+    @php
+        $valuesBg = $settings->cta_background_image_path
+            ?? $settings->home_background_image_path
+            ?? ($sliders->first()->image_path ?? null);
+    @endphp
+    <section class="values-parallax" id="core-values" aria-labelledby="core-values-title">
+        <div class="values-parallax__bg {{ $valuesBg ? '' : 'values-parallax__bg--fallback' }}"
+             @if($valuesBg) style="background-image: url('{{ asset($valuesBg) }}');" @endif
+             aria-hidden="true"></div>
+        <div class="values-parallax__overlay" aria-hidden="true"></div>
+        <div class="values-parallax__content content home-section__inner">
+            <header class="home-section__head home-section__head--light">
+                <h2 id="core-values-title" class="home-section__title">{{ $h['why_choose_title'] ?? 'Our Core Values' }}</h2>
+                @if(!empty(optional($settings)->about_values_subheading) && optional($settings)->about_values_subheading !== ($h['why_choose_title'] ?? 'Our Core Values'))
+                    <p class="home-section__subtitle">{{ $settings->about_values_subheading }}</p>
+                @endif
+            </header>
+
+            @if(!empty($whyChooseCards))
+                <div class="values-parallax__grid">
+                    @foreach($whyChooseCards as $i => $card)
+                        @php $iconTone = $i % 4; @endphp
+                        <article class="values-parallax__item">
+                            <div class="values-parallax__icon values-parallax__icon--{{ $iconTone }}" aria-hidden="true">
+                                @if($iconTone === 0)
+                                    <svg viewBox="0 0 48 48" fill="none"><circle cx="24" cy="18" r="8" stroke="currentColor" stroke-width="2.5"/><path d="M10 40c2.5-8 9-12 14-12s11.5 4 14 12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/><path d="M30 14l4-6M18 14l-4-6M24 8V2" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
+                                @elseif($iconTone === 1)
+                                    <svg viewBox="0 0 48 48" fill="none"><rect x="10" y="8" width="28" height="32" rx="3" stroke="currentColor" stroke-width="2.5"/><path d="M18 18h12M18 24h12M18 30h8" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/><circle cx="34" cy="34" r="8" fill="transparent" stroke="currentColor" stroke-width="2.5"/><path d="M31 34l2 2 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                @elseif($iconTone === 2)
+                                    <svg viewBox="0 0 48 48" fill="none"><path d="M24 6l14 8v12c0 10-6 16-14 20-8-4-14-10-14-20V14l14-8z" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"/><path d="M18 24l4 4 8-8" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                @else
+                                    <svg viewBox="0 0 48 48" fill="none"><path d="M16 38V18l8-6 8 6v20" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"/><path d="M16 22h16M20 28h8M22 34h4" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/><circle cx="24" cy="12" r="3" fill="currentColor"/></svg>
+                                @endif
+                            </div>
+                            @if(!empty($card['name']))
+                                <h3 class="values-parallax__item-title">{{ $card['name'] }}</h3>
                             @endif
-                            @if(!empty($pillar['description']))
-                                <p>{{ $pillar['description'] }}</p>
+                            @if(!empty($card['description']))
+                                <p class="values-parallax__item-desc">{{ strip_tags($card['description']) }}</p>
                             @endif
                         </article>
                     @endforeach
                 </div>
-            </div>
-        </section>
+            @else
+                <p class="values-parallax__empty">{{ $h['why_choose_empty'] ?? '' }}</p>
+            @endif
 
-        {{-- Programs --}}
-        @if($departments->isNotEmpty())
-            <section class="programs-section" id="programs" aria-labelledby="home-programs-title">
-                <div class="section-header">
-                    <p class="section-heading">{{ $h['programs_label'] ?? 'Programs' }}</p>
-                    <h2 id="home-programs-title" class="section-title">{{ $h['programs_title'] ?? 'Nursery & Primary Programs' }}</h2>
-                    <p class="section-sub section-sub--center">{{ $h['programs_subtitle'] ?? '' }}</p>
-                </div>
-                <div class="programs-grid programs-grid--two">
-                    @foreach($departments as $i => $department)
-                        @php $accent = $i % 3; @endphp
-                        <a href="{{ route('departments.show', ['department' => $department->slug ?: $department->id]) }}" class="program-card program-card--{{ $accent }}" wire:navigate>
-                            <div class="program-card__img-wrap">
-                                @if($department->cover_image)
-                                    <img src="{{ asset($department->cover_image) }}" alt="{{ $department->name }}" class="program-card__img">
-                                @else
-                                    <div class="program-card__placeholder"></div>
-                                @endif
-                            </div>
-                            <h3 class="program-card__title">{{ $department->name }}</h3>
-                            <p class="program-card__desc">{{ \Illuminate\Support\Str::limit(strip_tags($department->description ?? ''), 100) ?: ($h['programs_card_fallback'] ?? '') }}</p>
-                            <span class="program-card__btn">Learn more <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>
-                            <span class="program-card__line"></span>
-                        </a>
-                    @endforeach
-                </div>
-                @if($departments->count() > 2)
-                <div class="programs-footer">
-                    <a href="{{ route('departments.index') }}" class="btn-primary" wire:navigate>{{ $h['programs_link_text'] ?? 'View all programs' }}</a>
-                </div>
+            <div class="values-parallax__cta">
+                <a href="{{ url('/about#core-values') }}" class="btn-primary">
+                    {{ $h['overview_link_text'] ?? 'More About Our School' }}
+                </a>
+            </div>
+        </div>
+    </section>
+
+    {{-- Explore our school --}}
+    <section class="home-section home-explore" id="explore" aria-labelledby="home-explore-title">
+        <div class="content home-section__inner">
+            <header class="home-section__head">
+                <p class="section-heading">{{ $h['explore_label'] ?? 'Discover more' }}</p>
+                <h2 id="home-explore-title" class="home-section__title">{{ $h['explore_title'] ?? 'Explore Our School' }}</h2>
+                @if(!empty($h['explore_subtitle']))
+                    <p class="home-section__subtitle">{{ $h['explore_subtitle'] }}</p>
                 @endif
-            </section>
-        @endif
+            </header>
 
-        {{-- Why choose us --}}
-        <section class="about-values home-why-choose" id="why-choose" aria-labelledby="why-choose-title">
-            <div class="section-header">
-                <p class="section-heading">{{ $h['why_choose_label'] ?? 'Why choose us' }}</p>
-                <h2 id="why-choose-title" class="section-title">{{ optional($settings)->about_values_subheading ?? 'Growing hearts and minds through ACE' }}</h2>
-            </div>
-            @if(!empty($whyChooseCards))
-                <div class="values-grid">
-                    @foreach($whyChooseCards as $card)
-                        <div class="value-card">
-                            <div class="value-icon" aria-hidden="true">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="value-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                            </div>
-                            @if(!empty($card['name']))
-                                <h3 class="value-title">{{ $card['name'] }}</h3>
+            <div class="home-explore__grid">
+                @foreach($exploreCards as $i => $card)
+                    @php
+                        $key = $card['key'] ?? ('card-'.$i);
+                        $img = $exploreImages[$key] ?? null;
+                        $url = $heroPrimaryUrl($card['url'] ?? '/');
+                    @endphp
+                    <a href="{{ $url }}" class="explore-card" wire:navigate>
+                        <div class="explore-card__media">
+                            @if($img)
+                                <img src="{{ asset($img) }}" alt="{{ $card['title'] ?? 'Explore' }}" loading="lazy">
+                            @else
+                                <div class="explore-card__placeholder explore-card__placeholder--{{ $i % 3 }}"></div>
+                            @endif
+                            <span class="explore-card__icon" aria-hidden="true">
+                                @if(($card['key'] ?? '') === 'facilities' || $i === 1)
+                                    <svg viewBox="0 0 48 48" fill="none"><path d="M8 40V20l16-10 16 10v20" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"/><path d="M18 40V28h12v12" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"/><path d="M20 18h8" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
+                                @elseif(($card['key'] ?? '') === 'activities' || $i === 2)
+                                    <svg viewBox="0 0 48 48" fill="none"><path d="M24 8a10 10 0 00-6 18c.8 1.2 1.2 2.4 1.2 3.6V32h9.6v-2.4c0-1.2.4-2.4 1.2-3.6A10 10 0 0024 8z" stroke="currentColor" stroke-width="2.5"/><path d="M20 36h8M21 40h6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
+                                @else
+                                    <svg viewBox="0 0 48 48" fill="none"><path d="M12 34V18l12-8 12 8v16" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"/><path d="M20 34v-8h8v8M18 22h12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                @endif
+                            </span>
+                        </div>
+                        <div class="explore-card__body">
+                            @if(!empty($card['title']))
+                                <h3>{{ $card['title'] }}</h3>
                             @endif
                             @if(!empty($card['description']))
-                                <p class="value-desc">{{ $card['description'] }}</p>
+                                <p>{{ $card['description'] }}</p>
                             @endif
+                            <span class="explore-card__link">{{ $h['explore_link_text'] ?? 'Learn more' }} →</span>
                         </div>
-                    @endforeach
-                </div>
-            @else
-                <p class="lead text-muted" style="text-align:center;max-width:36rem;margin:0 auto;">{{ $h['why_choose_empty'] ?? '' }}</p>
-            @endif
-        </section>
-    </div>
+                    </a>
+                @endforeach
+            </div>
+        </div>
+    </section>
 
-    {{-- Gallery preview --}}
+    {{-- Gallery / Life at school --}}
     @php
         $g = $siteContent['gallery'] ?? [];
         $galleryLink = ($settings->gallery_external_url ?? null)
@@ -202,39 +287,33 @@
             : route('gallery.index');
         $galleryLinkExternal = (bool) ($settings->gallery_external_url ?? null);
     @endphp
-    <section class="home-gallery" id="gallery" aria-labelledby="home-gallery-title">
-        <div class="content">
-            <div class="home-gallery__header">
-                <div>
-                    <p class="section-heading">{{ $h['news_label'] ?? ($g['section_label'] ?? 'Gallery') }}</p>
-                    <h2 id="home-gallery-title" class="section-title" style="margin:0;">{{ $h['news_title'] ?? ($g['section_title'] ?? 'Life at our school') }}</h2>
-                    @if(!empty($g['section_subtitle']))
-                        <p class="section-sub" style="margin-top:8px;margin-bottom:0;">{{ $g['section_subtitle'] }}</p>
-                    @endif
-                </div>
+    <section class="home-section home-gallery" id="gallery" aria-labelledby="home-gallery-title">
+        <div class="content home-section__inner">
+            <header class="home-section__head">
+                <p class="section-heading">{{ $h['news_label'] ?? ($g['section_label'] ?? 'Gallery') }}</p>
+                <h2 id="home-gallery-title" class="home-section__title">{{ $h['news_title'] ?? ($g['section_title'] ?? 'Life at our school') }}</h2>
+                @if(!empty($g['section_subtitle']))
+                    <p class="home-section__subtitle">{{ $g['section_subtitle'] }}</p>
+                @endif
                 @if($galleryImages->isNotEmpty())
                     @if($galleryLinkExternal)
-                        <a href="{{ $galleryLink }}" class="home-gallery__link btn-outline" target="_blank" rel="noopener noreferrer">
+                        <a href="{{ $galleryLink }}" class="btn-outline home-section__cta" target="_blank" rel="noopener noreferrer">
                             {{ $h['news_link_text'] ?? 'View full gallery' }}
                         </a>
                     @else
-                        <a href="{{ $galleryLink }}" class="home-gallery__link btn-outline" wire:navigate>
+                        <a href="{{ $galleryLink }}" class="btn-outline home-section__cta" wire:navigate>
                             {{ $h['news_link_text'] ?? 'View full gallery' }}
                         </a>
                     @endif
                 @endif
-            </div>
+            </header>
 
             @if($galleryImages->isNotEmpty())
                 <div class="home-gallery__wrap"
                      x-data="{
                          lightboxOpen: false,
                          lightboxIndex: 0,
-                         images: @json($galleryImages->map(fn($i) => [
-                             'src' => asset($i->image_path),
-                             'alt' => $i->title ?? 'Gallery',
-                             'caption' => strip_tags($i->caption ?? ''),
-                         ])->values()),
+                         images: @json($galleryLightboxImages),
                          openLightbox(idx) { this.lightboxIndex = idx; this.lightboxOpen = true; document.body.style.overflow = 'hidden'; },
                          closeLightbox() { this.lightboxOpen = false; document.body.style.overflow = ''; },
                          nextImage() { this.lightboxIndex = (this.lightboxIndex + 1) % this.images.length; },

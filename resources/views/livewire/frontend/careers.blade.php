@@ -13,7 +13,7 @@
                 <div class="page-cta" style="margin-top:32px;">
                     <p class="page-cta__text">{{ $c['cta_title'] ?? 'Interested in joining our team?' }}</p>
                     <div class="page-cta__actions">
-                        <a href="{{ route('about') }}#inquire" class="btn-primary" wire:navigate>{{ $c['cta_btn'] ?? 'Contact us' }}</a>
+                        <a href="{{ url('/about#inquire') }}" class="btn-primary">{{ $c['cta_btn'] ?? 'Contact us' }}</a>
                     </div>
                 </div>
             </div>

@@ -13,11 +13,23 @@ class Index extends Component
     public function render()
     {
         $header = PageHeader::where('page_key', 'gallery')->first();
-        $items = MediaGalleryItem::where('is_active', true)->where('type', 'image')->orderBy('sort_order')->get();
+        $items = MediaGalleryItem::where('is_active', true)
+            ->where('type', 'image')
+            ->whereNotNull('image_path')
+            ->orderBy('sort_order')
+            ->get();
+
+        $galleryLightboxImages = $items->map(fn ($i) => [
+            'src' => asset($i->image_path),
+            'alt' => $i->title ?? 'Gallery',
+            'caption' => strip_tags($i->caption ?? ''),
+            'title' => $i->title ?? '',
+        ])->values();
 
         return view('livewire.frontend.gallery.index', [
             'header' => $header,
             'items' => $items,
+            'galleryLightboxImages' => $galleryLightboxImages,
         ]);
     }
 }

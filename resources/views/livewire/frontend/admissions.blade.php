@@ -71,7 +71,7 @@
                 <p class="page-cta__text">{{ $content->cta_text ?? '' }}</p>
                 <div class="page-cta__actions">
                     <a href="{{ route('appointment') }}" class="btn-primary" wire:navigate>{{ $content->cta_primary_btn ?? 'Register your child' }}</a>
-                    <a href="{{ route('about') }}#inquire" class="btn-outline" wire:navigate>{{ $content->cta_secondary_btn ?? 'Schedule a school visit' }}</a>
+                    <a href="{{ url('/about#inquire') }}" class="btn-outline">{{ $content->cta_secondary_btn ?? 'Schedule a school visit' }}</a>
                 </div>
             </div>
         </div>
