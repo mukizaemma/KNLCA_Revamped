@@ -194,8 +194,10 @@
 }
 .program-card:hover { transform: translateY(-4px); }
 .program-card__img-wrap {
+    position: relative;
     width: 100%;
     aspect-ratio: 4 / 3;
+    min-height: 200px;
     border-radius: 8px;
     overflow: hidden;
     box-shadow: 0 8px 24px rgba(0,0,0,0.12);
@@ -203,6 +205,8 @@
     background: var(--cream, #f5f0e8);
 }
 .program-card__img {
+    position: absolute;
+    inset: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
@@ -211,7 +215,13 @@
     transition: transform 0.3s;
 }
 .program-card:hover .program-card__img { transform: scale(1.03); }
-.program-card__placeholder { width: 100%; height: 100%; background: linear-gradient(135deg, #e8f4fc, #d0e8f5); }
+.program-card__placeholder {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #e8f4fc, #d0e8f5);
+}
 .program-card__title {
     font-size: 1.35rem; font-weight: 700; margin-bottom: 12px; line-height: 1.3;
 }
@@ -1007,11 +1017,14 @@
     box-shadow: 0 14px 32px rgba(26, 46, 78, 0.12);
 }
 .level-card__media {
+    position: relative;
     aspect-ratio: 4 / 3;
     overflow: hidden;
     background: linear-gradient(145deg, #e8eef5, #d5deea);
 }
 .level-card__media img {
+    position: absolute;
+    inset: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
@@ -1021,6 +1034,8 @@
 }
 .level-card:hover .level-card__media img { transform: scale(1.04); }
 .level-card__placeholder {
+    position: absolute;
+    inset: 0;
     width: 100%;
     height: 100%;
     background: linear-gradient(145deg, var(--navy-soft), var(--navy));
@@ -1176,10 +1191,13 @@
 .explore-card__media {
     position: relative;
     aspect-ratio: 16 / 10;
+    min-height: 180px;
     overflow: hidden;
     background: #e8eef5;
 }
 .explore-card__media img {
+    position: absolute;
+    inset: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
@@ -1188,7 +1206,12 @@
     transition: transform 0.35s;
 }
 .explore-card:hover .explore-card__media img { transform: scale(1.04); }
-.explore-card__placeholder { width: 100%; height: 100%; }
+.explore-card__placeholder {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+}
 .explore-card__placeholder--0 { background: linear-gradient(145deg, #2A4572, #1A2E4E); }
 .explore-card__placeholder--1 { background: linear-gradient(145deg, #E09410, #F9A825); }
 .explore-card__placeholder--2 { background: linear-gradient(145deg, #3DB8A8, #2A9A8C); }

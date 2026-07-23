@@ -14,7 +14,7 @@
                 <a href="{{ route('departments.show', ['department' => $department->slug ?: $department->id]) }}" class="program-card program-card--{{ $accent }}" wire:navigate>
                     <div class="program-card__img-wrap">
                         @if($department->cover_image)
-                            <img src="{{ asset($department->cover_image) }}" alt="{{ $department->name }}" class="program-card__img">
+                            <img src="{{ asset($department->cover_image) }}" alt="{{ $department->name }}" class="program-card__img" width="800" height="600" loading="lazy">
                         @else
                             <div class="program-card__placeholder"></div>
                         @endif

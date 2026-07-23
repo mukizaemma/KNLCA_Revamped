@@ -156,7 +156,7 @@
                             <a href="{{ route('departments.show', ['department' => $department->slug ?: $department->id]) }}" class="level-card" wire:navigate>
                                 <div class="level-card__media">
                                     @if($department->cover_image)
-                                        <img src="{{ asset($department->cover_image) }}" alt="{{ $department->name }}" loading="lazy">
+                                        <img src="{{ asset($department->cover_image) }}" alt="{{ $department->name }}" loading="lazy" width="800" height="640">
                                     @else
                                         <div class="level-card__placeholder"></div>
                                     @endif
