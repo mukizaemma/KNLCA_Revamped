@@ -34,7 +34,13 @@
                         <tr>
                             <td>
                                 @if($f->image_path)
-                                    <img src="{{ asset($f->image_path) }}" alt="" class="rounded border" style="height: 50px; width: 70px; object-fit: cover;">
+                                    <img
+                                        src="{{ asset($f->image_path) }}"
+                                        alt="{{ $f->name }}"
+                                        class="rounded border"
+                                        style="height: 50px; width: 70px; object-fit: cover;"
+                                        onerror="this.onerror=null;this.replaceWith(Object.assign(document.createElement('span'),{className:'text-muted small',textContent:'Missing file'}));"
+                                    >
                                 @else
                                     <span class="text-muted small">—</span>
                                 @endif
@@ -88,9 +94,10 @@
                                 @error('description') <small class="text-danger">{{ $message }}</small> @enderror
                             </div>
                             <div class="mb-3">
-                                <label class="form-label">Image</label>
+                                <label class="form-label">Image @if(!$editingId)<span class="text-danger">*</span>@endif</label>
                                 <input type="file" class="form-control" wire:model="image" accept="image/*">
-                                @error('image') <small class="text-danger">{{ $message }}</small> @enderror
+                                <div wire:loading wire:target="image" class="small text-primary mt-1">Uploading image…</div>
+                                @error('image') <small class="text-danger d-block">{{ $message }}</small> @enderror
                                 @if($image)
                                     <img src="{{ $image->temporaryUrl() }}" alt="Preview" class="img-fluid rounded mt-2" style="max-height: 100px;">
                                 @elseif($image_path)

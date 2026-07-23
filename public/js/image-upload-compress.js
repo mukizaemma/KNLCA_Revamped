@@ -1,7 +1,7 @@
 /**
  * Image upload compressor for Livewire / Summernote forms.
- * Resizes selected images to at most 700 KB, preferably not below 400 KB,
- * and shows the upload size before Livewire uploads the file.
+ * Resizes selected images to at most 700 KB (prefer not below 400 KB when compressing),
+ * shows the upload size before/while Livewire uploads, and never blocks Livewire uploads.
  */
 (function (window, document) {
     'use strict';
@@ -10,6 +10,9 @@
     var MAX_BYTES = 700 * 1024;
     var MAX_DIMENSION = 1920;
     var OUTPUT_TYPE = 'image/jpeg';
+    var lastSizeByInput = {};
+    var processing = new WeakSet();
+    var booted = false;
 
     function formatBytes(bytes) {
         if (!bytes && bytes !== 0) return '—';
@@ -31,6 +34,32 @@
         if (!accept) return false;
         if (accept.indexOf('image') !== -1) return true;
         return /\.?(jpe?g|png|gif|webp|bmp)/.test(accept);
+    }
+
+    function inputKey(input) {
+        return getWireModelName(input) || input.name || input.id || '';
+    }
+
+    function getWireModelName(input) {
+        if (!input || !input.attributes) return null;
+        for (var i = 0; i < input.attributes.length; i++) {
+            var attr = input.attributes[i];
+            if (attr.name === 'wire:model' || attr.name.indexOf('wire:model.') === 0) {
+                return attr.value;
+            }
+        }
+        return null;
+    }
+
+    function getLivewireComponent(input) {
+        if (!window.Livewire || typeof Livewire.find !== 'function') return null;
+        var el = input.closest('[wire\\:id]');
+        if (!el) return null;
+        try {
+            return Livewire.find(el.getAttribute('wire:id'));
+        } catch (e) {
+            return null;
+        }
     }
 
     function loadImage(file) {
@@ -76,10 +105,6 @@
         return canvas;
     }
 
-    /**
-     * Compress toward [MIN_BYTES, MAX_BYTES]. Max is hard; min is preferred.
-     * Files already ≤ 700 KB are left unchanged.
-     */
     async function compressImageFile(file) {
         var originalSize = file.size;
 
@@ -164,10 +189,46 @@
         };
     }
 
-    var lastSizeByInput = {};
+    function escapeHtml(str) {
+        return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;');
+    }
 
-    function inputKey(input) {
-        return input.getAttribute('wire:model') || input.name || input.id || '';
+    function renderSizeInfo(panel, results, status) {
+        if (!panel) return;
+
+        if (status === 'working') {
+            panel.innerHTML = '<span style="color:#0d6efd;">Optimizing image…</span>';
+            return;
+        }
+
+        if (!results || !results.length) {
+            panel.innerHTML = '<span style="color:#6c757d;">Images are optimized to 400–700 KB before upload. You will see the size here after selecting a file.</span>';
+            return;
+        }
+
+        var html = results.map(function (r, idx) {
+            var name = r.file && r.file.name ? r.file.name : ('Image ' + (idx + 1));
+            var line;
+            if (r.error) {
+                line = '<span style="color:#dc3545;">' + escapeHtml(name) + ': could not optimize — uploading original (' + formatBytes(r.originalSize) + ').</span>';
+            } else if (r.compressed) {
+                line = '<strong>' + escapeHtml(name) + '</strong>: original <strong>' + formatBytes(r.originalSize) + '</strong> → upload size <strong style="color:#198754;">' + formatBytes(r.finalSize) + '</strong>';
+            } else {
+                line = '<strong>' + escapeHtml(name) + '</strong>: upload size <strong style="color:#198754;">' + formatBytes(r.finalSize) + '</strong>';
+                if (r.finalSize > MAX_BYTES) {
+                    line += ' <span style="color:#fd7e14;">(above 700 KB — could not compress further)</span>';
+                } else if (r.finalSize < MIN_BYTES) {
+                    line += ' <span style="color:#6c757d;">(under 400 KB — kept as-is)</span>';
+                }
+            }
+            return '<div>' + line + '</div>';
+        }).join('');
+
+        panel.innerHTML = html;
     }
 
     function ensureSizePanel(input) {
@@ -199,77 +260,13 @@
         if (lastSizeByInput[key]) {
             renderSizeInfo(panel, lastSizeByInput[key], 'done');
         } else {
-            panel.innerHTML = '<span class="text-muted">Images are optimized to 400–700 KB before upload. You will see the size here after selecting a file.</span>';
+            panel.innerHTML = '<span style="color:#6c757d;">Images are optimized to 400–700 KB before upload. You will see the size here after selecting a file.</span>';
         }
         input.insertAdjacentElement('afterend', panel);
         return panel;
     }
 
-    function escapeHtml(str) {
-        return String(str)
-            .replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;')
-            .replace(/"/g, '&quot;');
-    }
-
-    function renderSizeInfo(panel, results, status) {
-        if (!panel) return;
-
-        if (status === 'working') {
-            panel.innerHTML = '<span style="color:#0d6efd;">Optimizing image…</span>';
-            return;
-        }
-
-        if (!results || !results.length) {
-            panel.innerHTML = '<span style="color:#6c757d;">Images are optimized to 400–700 KB before upload.</span>';
-            return;
-        }
-
-        var html = results.map(function (r, idx) {
-            var name = r.file && r.file.name ? r.file.name : ('Image ' + (idx + 1));
-            var line;
-            if (r.error) {
-                line = '<span style="color:#dc3545;">' + escapeHtml(name) + ': could not optimize — uploading original (' + formatBytes(r.originalSize) + ').</span>';
-            } else if (r.compressed) {
-                line = '<strong>' + escapeHtml(name) + '</strong>: original <strong>' + formatBytes(r.originalSize) + '</strong> → upload size <strong style="color:#198754;">' + formatBytes(r.finalSize) + '</strong>';
-            } else {
-                line = '<strong>' + escapeHtml(name) + '</strong>: upload size <strong style="color:#198754;">' + formatBytes(r.finalSize) + '</strong>';
-                if (r.finalSize > MAX_BYTES) {
-                    line += ' <span style="color:#fd7e14;">(above 700 KB — could not compress further)</span>';
-                } else if (r.finalSize < MIN_BYTES) {
-                    line += ' <span style="color:#6c757d;">(under 400 KB — kept as-is)</span>';
-                }
-            }
-            return '<div>' + line + '</div>';
-        }).join('');
-
-        panel.innerHTML = html;
-    }
-
-    async function processInputFiles(input) {
-        var files = Array.prototype.slice.call(input.files || []);
-        if (!files.length) return null;
-
-        var panel = ensureSizePanel(input);
-        renderSizeInfo(panel, null, 'working');
-
-        var results = [];
-        var dt = new DataTransfer();
-
-        for (var i = 0; i < files.length; i++) {
-            var file = files[i];
-            if (!isImageFile(file)) {
-                results.push({ file: file, originalSize: file.size, finalSize: file.size, compressed: false });
-                dt.items.add(file);
-                continue;
-            }
-            var result = await compressImageFile(file);
-            results.push(result);
-            dt.items.add(result.file);
-        }
-
-        input.files = dt.files;
+    function rememberResults(input, results) {
         lastSizeByInput[inputKey(input)] = results.map(function (r) {
             return {
                 file: { name: r.file.name },
@@ -279,8 +276,131 @@
                 error: r.error || null
             };
         });
-        renderSizeInfo(panel, results, 'done');
-        return results;
+    }
+
+    function showSizesForRawFiles(input, files) {
+        var results = files.map(function (file) {
+            return { file: file, originalSize: file.size, finalSize: file.size, compressed: false };
+        });
+        rememberResults(input, results);
+        renderSizeInfo(ensureSizePanel(input), results, 'done');
+    }
+
+    function uploadToLivewire(input, files) {
+        var component = getLivewireComponent(input);
+        var prop = getWireModelName(input);
+        if (!component || !prop || !files.length) return false;
+
+        var wire = component.$wire || component;
+        var uploadFn = null;
+        var uploadMultipleFn = null;
+
+        if (wire && typeof wire.upload === 'function') {
+            uploadFn = wire.upload.bind(wire);
+            uploadMultipleFn = typeof wire.uploadMultiple === 'function' ? wire.uploadMultiple.bind(wire) : null;
+        } else if (typeof component.upload === 'function') {
+            uploadFn = component.upload.bind(component);
+            uploadMultipleFn = typeof component.uploadMultiple === 'function' ? component.uploadMultiple.bind(component) : null;
+        }
+
+        if (!uploadFn) return false;
+
+        var onError = function (err) {
+            console.error('Livewire image upload failed', err);
+            var panel = ensureSizePanel(input);
+            if (panel) {
+                panel.innerHTML = '<span style="color:#dc3545;">Upload failed. Please try again.</span>';
+            }
+        };
+
+        try {
+            if (input.multiple && uploadMultipleFn) {
+                uploadMultipleFn(prop, files, function () {}, onError);
+            } else {
+                uploadFn(prop, files[0], function () {}, onError);
+            }
+            return true;
+        } catch (e) {
+            console.error(e);
+            return false;
+        }
+    }
+
+    function replaceInputFilesAndDispatch(input, files) {
+        var dt = new DataTransfer();
+        for (var i = 0; i < files.length; i++) {
+            dt.items.add(files[i]);
+        }
+        input.files = dt.files;
+        input.dataset.imageCompressReady = '1';
+        input.dispatchEvent(new Event('change', { bubbles: true }));
+        setTimeout(function () {
+            delete input.dataset.imageCompressReady;
+        }, 0);
+    }
+
+    async function onFileChange(event) {
+        var input = event.target;
+        if (!inputAcceptsImages(input)) return;
+        if (input.dataset.imageCompressReady === '1') return;
+        if (!input.files || !input.files.length) return;
+
+        var files = Array.prototype.slice.call(input.files);
+        var hasImage = files.some(isImageFile);
+        if (!hasImage) return;
+
+        var needsCompress = files.some(function (file) {
+            return isImageFile(file) && file.size > MAX_BYTES;
+        });
+
+        // Small images: do not block Livewire — only show the size.
+        if (!needsCompress) {
+            showSizesForRawFiles(input, files);
+            return;
+        }
+
+        event.stopImmediatePropagation();
+        event.preventDefault();
+
+        if (processing.has(input)) return;
+        processing.add(input);
+
+        var panel = ensureSizePanel(input);
+        renderSizeInfo(panel, null, 'working');
+
+        try {
+            var results = [];
+            var outFiles = [];
+
+            for (var i = 0; i < files.length; i++) {
+                var file = files[i];
+                if (!isImageFile(file) || file.size <= MAX_BYTES) {
+                    results.push({ file: file, originalSize: file.size, finalSize: file.size, compressed: false });
+                    outFiles.push(file);
+                    continue;
+                }
+                var result = await compressImageFile(file);
+                results.push(result);
+                outFiles.push(result.file);
+            }
+
+            rememberResults(input, results);
+            renderSizeInfo(panel, results, 'done');
+
+            if (!uploadToLivewire(input, outFiles)) {
+                replaceInputFilesAndDispatch(input, outFiles);
+            }
+        } catch (err) {
+            console.error('Image compress failed', err);
+            if (panel) {
+                panel.innerHTML = '<span style="color:#dc3545;">Optimization failed. Uploading original file.</span>';
+            }
+            if (!uploadToLivewire(input, files)) {
+                replaceInputFilesAndDispatch(input, files);
+            }
+        } finally {
+            processing.delete(input);
+        }
     }
 
     function bindHintPanels() {
@@ -290,54 +410,13 @@
         });
     }
 
-    var processing = new WeakSet();
-
-    async function onFileChange(event) {
-        var input = event.target;
-        if (!inputAcceptsImages(input)) return;
-        if (input.dataset.imageCompressReady === '1') return;
-        if (!input.files || !input.files.length) return;
-
-        var hasImage = Array.prototype.some.call(input.files, isImageFile);
-        if (!hasImage) return;
-
-        // Stop Livewire from uploading the original oversized file.
-        event.stopImmediatePropagation();
-        event.preventDefault();
-
-        if (processing.has(input)) return;
-        processing.add(input);
-
-        try {
-            await processInputFiles(input);
-            input.dataset.imageCompressReady = '1';
-            input.dispatchEvent(new Event('change', { bubbles: true }));
-        } catch (err) {
-            console.error('Image compress failed', err);
-            var panel = ensureSizePanel(input);
-            if (panel) {
-                panel.innerHTML = '<span class="text-danger">Optimization failed. Uploading original file.</span>';
-            }
-            input.dataset.imageCompressReady = '1';
-            input.dispatchEvent(new Event('change', { bubbles: true }));
-        } finally {
-            processing.delete(input);
-            setTimeout(function () {
-                delete input.dataset.imageCompressReady;
-            }, 0);
-        }
-    }
-
     function boot() {
+        if (booted) return;
+        booted = true;
+
         document.addEventListener('change', onFileChange, true);
         bindHintPanels();
 
-        if (window.Livewire && typeof Livewire.hook === 'function') {
-            Livewire.hook('message.processed', function () {
-                bindHintPanels();
-            });
-        }
-        document.addEventListener('livewire:navigated', bindHintPanels);
         document.addEventListener('livewire:init', function () {
             if (window.Livewire && typeof Livewire.hook === 'function') {
                 Livewire.hook('message.processed', function () {
@@ -345,6 +424,14 @@
                 });
             }
         });
+
+        if (window.Livewire && typeof Livewire.hook === 'function') {
+            Livewire.hook('message.processed', function () {
+                bindHintPanels();
+            });
+        }
+
+        document.addEventListener('livewire:navigated', bindHintPanels);
     }
 
     window.KnlcaImageUpload = {

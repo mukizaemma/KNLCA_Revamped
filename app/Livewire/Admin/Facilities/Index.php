@@ -29,7 +29,7 @@ class Index extends Component
         return [
             'name' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
-            'image' => ['nullable', 'image', 'max:4096'],
+            'image' => [$this->editingId ? 'nullable' : 'required', 'image', 'max:4096'],
             'is_active' => ['boolean'],
             'sort_order' => ['nullable', 'integer', 'min:0'],
         ];
