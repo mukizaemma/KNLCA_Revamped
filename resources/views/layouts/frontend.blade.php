@@ -240,6 +240,7 @@
         });
     </script>
     @livewireScripts
+    <script src="{{ asset('js/image-upload-compress.js') }}?v={{ file_exists(public_path('js/image-upload-compress.js')) ? filemtime(public_path('js/image-upload-compress.js')) : 1 }}"></script>
     @stack('scripts')
 </body>
 </html>

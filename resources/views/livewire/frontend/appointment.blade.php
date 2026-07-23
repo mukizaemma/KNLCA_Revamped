@@ -134,6 +134,7 @@
                                     <div class="form-group">
                                         <label for="previous_school_report">Upload previous academic report (PDF / image)</label>
                                         <input type="file" id="previous_school_report" wire:model="previous_school_report" class="form-control" accept=".pdf,.jpg,.jpeg,.png">
+                                        <span class="form-hint">Images are optimized to 400–700 KB before upload; the size is shown below after you select a file. PDFs are uploaded as-is.</span>
                                         <span wire:loading wire:target="previous_school_report" class="form-hint">Uploading file…</span>
                                         @if($previous_school_report)
                                             <p class="form-hint form-hint--success">File ready: {{ $previous_school_report->getClientOriginalName() }}</p>

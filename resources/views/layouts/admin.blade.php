@@ -217,6 +217,7 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     @livewireScripts
+    <script src="{{ asset('js/image-upload-compress.js') }}?v={{ file_exists(public_path('js/image-upload-compress.js')) ? filemtime(public_path('js/image-upload-compress.js')) : 1 }}"></script>
     @stack('scripts')
 
     <script>
@@ -317,18 +318,47 @@
                             },
                             onImageUpload: function (files) {
                                 const editor = $jq(this);
-                                const data = new FormData();
-                                data.append('file', files[0]);
-                                data.append('_token', document.querySelector('meta[name="csrf-token"]').getAttribute('content'));
-                                fetch('{{ route("admin.upload-editor-image") }}', {
-                                    method: 'POST',
-                                    body: data,
-                                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
-                                }).then(function (r) { return r.json(); }).then(function (res) {
-                                    editor.summernote('insertImage', res.url);
-                                }).catch(function () {
-                                    alert('Image upload failed.');
-                                });
+                                const original = files[0];
+                                if (!original) return;
+
+                                const upload = function (file, sizeNote) {
+                                    const data = new FormData();
+                                    data.append('file', file);
+                                    data.append('_token', document.querySelector('meta[name="csrf-token"]').getAttribute('content'));
+                                    fetch('{{ route("admin.upload-editor-image") }}', {
+                                        method: 'POST',
+                                        body: data,
+                                        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                                    }).then(function (r) { return r.json(); }).then(function (res) {
+                                        editor.summernote('insertImage', res.url);
+                                        if (sizeNote && window.Swal) {
+                                            Swal.fire({
+                                                toast: true,
+                                                position: 'top-end',
+                                                icon: 'success',
+                                                title: sizeNote,
+                                                showConfirmButton: false,
+                                                timer: 2800
+                                            });
+                                        }
+                                    }).catch(function () {
+                                        alert('Image upload failed.');
+                                    });
+                                };
+
+                                if (window.KnlcaImageUpload && typeof KnlcaImageUpload.compressImageFile === 'function') {
+                                    KnlcaImageUpload.compressImageFile(original).then(function (result) {
+                                        var note = 'Editor image upload size: ' + KnlcaImageUpload.formatBytes(result.finalSize);
+                                        if (result.compressed) {
+                                            note = 'Optimized: ' + KnlcaImageUpload.formatBytes(result.originalSize) + ' → ' + KnlcaImageUpload.formatBytes(result.finalSize);
+                                        }
+                                        upload(result.file, note);
+                                    }).catch(function () {
+                                        upload(original, null);
+                                    });
+                                } else {
+                                    upload(original, null);
+                                }
                             }
                         }
                     });
