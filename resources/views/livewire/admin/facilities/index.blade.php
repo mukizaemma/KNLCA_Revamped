@@ -91,6 +91,7 @@
                             <div class="mb-3">
                                 <label class="form-label">Description</label>
                                 <textarea class="form-control summernote" wire:model.defer="description" rows="4"></textarea>
+                                <small class="text-muted">List pages show a short preview; the full description appears on the facility page.</small>
                                 @error('description') <small class="text-danger">{{ $message }}</small> @enderror
                             </div>
                             <div class="mb-3">

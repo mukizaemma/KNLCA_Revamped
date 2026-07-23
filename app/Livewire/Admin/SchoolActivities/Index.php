@@ -18,7 +18,6 @@ class Index extends Component
     public string $search = '';
     public ?int $editingId = null;
     public string $title = '';
-    public ?string $excerpt = null;
     public ?string $content = null;
     public $image;
     public ?string $image_path = null;
@@ -34,7 +33,6 @@ class Index extends Component
     {
         return [
             'title' => ['required', 'string', 'max:255'],
-            'excerpt' => ['nullable', 'string', 'max:500'],
             'content' => ['nullable', 'string'],
             'image' => ['nullable', 'image', 'max:4096'],
             'published_at' => ['nullable', 'date'],
@@ -52,6 +50,7 @@ class Index extends Component
     {
         $this->resetForm();
         $this->editingId = null;
+        $this->published_at = now()->format('Y-m-d\TH:i');
         $this->showFormModal = true;
     }
 
@@ -60,8 +59,7 @@ class Index extends Component
         $a = SchoolActivity::findOrFail($id);
         $this->editingId = $a->id;
         $this->title = $a->title;
-        $this->excerpt = $a->excerpt ?? '';
-        $this->content = $a->content ?? '';
+        $this->content = $a->content ?: ($a->excerpt ?? '');
         $this->image_path = $a->image_path;
         $this->image = null;
         $this->published_at = $a->published_at ? $a->published_at->format('Y-m-d\TH:i') : null;
@@ -81,14 +79,20 @@ class Index extends Component
     {
         $data = $this->validate();
         $slug = $this->uniqueSlug(Str::slug($data['title']), $this->editingId);
+        $content = $data['content'] ?? null;
+        // Keep excerpt in sync as a plain-text preview for older code paths.
+        $excerpt = $content ? Str::limit(trim(preg_replace('/\s+/', ' ', strip_tags($content))), 250) : null;
+        $publishedAt = ! empty($data['published_at'])
+            ? \Carbon\Carbon::parse($data['published_at'])
+            : now();
         $payload = [
             'title' => $data['title'],
             'slug' => $slug,
-            'excerpt' => $data['excerpt'] ?? null,
-            'content' => $data['content'] ?? null,
+            'content' => $content,
+            'excerpt' => $excerpt,
             'is_active' => $data['is_active'],
             'sort_order' => $data['sort_order'] ?? null,
-            'published_at' => !empty($data['published_at']) ? \Carbon\Carbon::parse($data['published_at']) : null,
+            'published_at' => $publishedAt,
         ];
 
         if ($this->image) {
@@ -174,7 +178,6 @@ class Index extends Component
     protected function resetForm(): void
     {
         $this->title = '';
-        $this->excerpt = null;
         $this->content = null;
         $this->image = null;
         $this->image_path = null;

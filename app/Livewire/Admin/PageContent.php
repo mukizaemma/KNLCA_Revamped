@@ -7,10 +7,13 @@ use App\Models\WebsiteSetting;
 use App\Support\SiteContent;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
+use Livewire\WithFileUploads;
 
 #[Layout('layouts.admin')]
 class PageContent extends Component
 {
+    use WithFileUploads;
+
     public string $activeTab = 'global';
 
     /** @var array<string, mixed> */
@@ -18,6 +21,12 @@ class PageContent extends Component
 
     /** @var array<int, array{key: string, label: string, title: string, caption: string, image_path: ?string}> */
     public array $headers = [];
+
+    /** @var array<int, mixed> Temporary uploads keyed by header index */
+    public array $headerImages = [];
+
+    /** @var array<int, mixed> */
+    public array $headerRemoveImage = [];
 
     protected array $headerPages = [
         ['key' => 'about', 'label' => 'About · Overview'],
@@ -118,6 +127,12 @@ class PageContent extends Component
 
     public function save(): void
     {
+        $this->validate([
+            'headers.*.title' => ['nullable', 'string', 'max:255'],
+            'headers.*.caption' => ['nullable', 'string'],
+            'headerImages.*' => ['nullable', 'image', 'max:4096'],
+        ]);
+
         $settings = WebsiteSetting::first() ?? WebsiteSetting::create([]);
 
         $coreCards = array_values(array_filter(
@@ -150,6 +165,8 @@ class PageContent extends Component
     {
         $existing = PageHeader::all()->keyBy('page_key');
         $this->headers = [];
+        $this->headerImages = [];
+        $this->headerRemoveImage = [];
 
         foreach ($this->headerPages as $page) {
             $row = $existing->get($page['key']);
@@ -165,15 +182,30 @@ class PageContent extends Component
 
     protected function saveHeaders(): void
     {
-        foreach ($this->headers as $header) {
-            PageHeader::updateOrCreate(
+        foreach ($this->headers as $index => $header) {
+            $imagePath = $header['image_path'] ?? null;
+
+            if (! empty($this->headerRemoveImage[$index])) {
+                $imagePath = null;
+            } elseif (isset($this->headerImages[$index]) && $this->headerImages[$index]) {
+                $path = $this->headerImages[$index]->store('headers', 'public');
+                $imagePath = 'storage/' . $path;
+            }
+
+            $model = PageHeader::updateOrCreate(
                 ['page_key' => $header['key']],
                 [
                     'title' => $header['title'] ?: null,
                     'caption' => $header['caption'] ?: null,
+                    'image_path' => $imagePath,
                 ]
             );
+
+            $this->headers[$index]['image_path'] = $model->image_path;
         }
+
+        $this->headerImages = [];
+        $this->headerRemoveImage = [];
     }
 
     public function render()

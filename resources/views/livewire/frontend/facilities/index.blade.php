@@ -10,7 +10,7 @@
             </div>
             <div class="facilities-grid">
                 @forelse($facilities ?? [] as $facility)
-                    <div class="facility-card">
+                    <a href="{{ route('facilities.show', ['facility' => $facility->slug ?: $facility->id]) }}" class="facility-card" wire:navigate>
                         <div class="facility-card__img-wrap">
                             @if($facility->image_path)
                                 <img src="{{ asset($facility->image_path) }}" alt="{{ $facility->name }}" class="facility-card__img facility-card__img--zoom">
@@ -19,10 +19,11 @@
                             @endif
                         </div>
                         <h3 class="facility-card__title">{{ $facility->name }}</h3>
-                        @if($facility->description)
-                            <div class="facility-card__desc">{!! \Illuminate\Support\Str::limit(strip_tags($facility->description), 150) !!}</div>
+                        @if($facility->shortDescription())
+                            <p class="facility-card__desc">{{ $facility->shortDescription(150) }}</p>
                         @endif
-                    </div>
+                        <span class="facility-card__link">Read more</span>
+                    </a>
                 @empty
                     <p class="lead text-muted">{{ $f['empty'] ?? 'Facilities will be listed here.' }}</p>
                 @endforelse

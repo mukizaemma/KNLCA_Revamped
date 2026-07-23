@@ -31,7 +31,8 @@ Route::get('/leadership', \App\Livewire\Frontend\LeadershipTeam\Index::class)->n
 Route::get('/leadership/{member}/{slug?}', \App\Livewire\Frontend\LeadershipTeam\Show::class)->name('leadership.show');
 Route::get('/gallery', \App\Livewire\Frontend\Gallery\Index::class)->name('gallery.index');
 Route::get('/admissions', \App\Livewire\Frontend\Admissions::class)->name('admissions');
-Route::get('/facilities', \App\Livewire\Frontend\Facilities::class)->name('facilities');
+Route::get('/facilities', \App\Livewire\Frontend\Facilities\Index::class)->name('facilities');
+Route::get('/facilities/{facility}', \App\Livewire\Frontend\Facilities\Show::class)->name('facilities.show');
 Route::get('/school-activities', \App\Livewire\Frontend\SchoolActivities\Index::class)->name('school-activities');
 Route::get('/school-activities/{activity}', \App\Livewire\Frontend\SchoolActivities\Show::class)->name('school-activities.show');
 Route::get('/careers', \App\Livewire\Frontend\Careers::class)->name('careers');

@@ -171,7 +171,7 @@
 
             @if($activeTab === 'headers')
                 <div class="card border-0 shadow-sm mb-3"><div class="card-body">
-                    <p class="text-muted small">Edit page hero titles and captions. Header background images can still be uploaded in Settings → Page Headers.</p>
+                    <p class="text-muted small mb-3">Edit each page’s hero title, caption, and background image. Images appear in the page banner on the public site.</p>
                     @foreach($headers as $index => $header)
                         <div class="border rounded p-3 mb-3" wire:key="header-{{ $header['key'] }}">
                             <div class="fw-semibold mb-2">{{ $header['label'] }} <span class="text-muted small">({{ $header['key'] }})</span></div>
@@ -184,12 +184,38 @@
                                     <label class="form-label small text-muted">Caption</label>
                                     <input type="text" class="form-control form-control-sm" wire:model.defer="headers.{{ $index }}.caption">
                                 </div>
-                            </div>
-                            @if(!empty($header['image_path']))
-                                <div class="mt-2">
-                                    <img src="{{ asset($header['image_path']) }}" alt="" class="img-fluid rounded border" style="max-height: 64px;">
+                                <div class="col-12 mt-2">
+                                    <label class="form-label small text-muted">Header image</label>
+                                    <input
+                                        type="file"
+                                        class="form-control form-control-sm @error('headerImages.' . $index) is-invalid @enderror"
+                                        wire:model="headerImages.{{ $index }}"
+                                        accept="image/*"
+                                    >
+                                    @error('headerImages.' . $index)
+                                        <div class="invalid-feedback d-block">{{ $message }}</div>
+                                    @enderror
+                                    <div wire:loading wire:target="headerImages.{{ $index }}" class="small text-primary mt-1">Uploading image…</div>
+
+                                    @if(isset($headerImages[$index]) && $headerImages[$index])
+                                        <div class="mt-2">
+                                            <span class="text-muted small d-block mb-1">Preview (new upload):</span>
+                                            <img src="{{ $headerImages[$index]->temporaryUrl() }}" alt="Header preview" class="img-fluid rounded border" style="max-height: 100px;">
+                                        </div>
+                                    @elseif(!empty($header['image_path']))
+                                        <div class="mt-2">
+                                            <span class="text-muted small d-block mb-1">Current image:</span>
+                                            <img src="{{ asset($header['image_path']) }}" alt="Header image" class="img-fluid rounded border" style="max-height: 100px;">
+                                        </div>
+                                        <label class="small mt-2 d-flex align-items-center gap-1">
+                                            <input type="checkbox" wire:model="headerRemoveImage.{{ $index }}" value="1">
+                                            Remove image
+                                        </label>
+                                    @else
+                                        <small class="text-muted d-block mt-1">No image yet. Upload above, then click Save all.</small>
+                                    @endif
                                 </div>
-                            @endif
+                            </div>
                         </div>
                     @endforeach
                 </div></div>

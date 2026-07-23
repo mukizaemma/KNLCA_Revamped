@@ -20,9 +20,9 @@
                         </div>
                         <div class="activity-card__body">
                             <h3 class="activity-card__title">{{ $activity->title }}</h3>
-                            <p class="activity-card__meta">{{ $activity->published_at?->format('F j, Y') }}</p>
-                            @if($activity->excerpt)
-                                <p class="activity-card__excerpt">{{ \Illuminate\Support\Str::limit($activity->excerpt, 120) }}</p>
+                            <p class="activity-card__meta">{{ ($activity->published_at ?? $activity->created_at)?->format('F j, Y') }}</p>
+                            @if($activity->shortDescription())
+                                <p class="activity-card__excerpt">{{ $activity->shortDescription(120) }}</p>
                             @endif
                             <span class="activity-card__link">Read more <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>
                         </div>

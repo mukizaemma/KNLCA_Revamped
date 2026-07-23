@@ -135,6 +135,7 @@
                             <div class="mb-3">
                                 <label class="form-label">Biography</label>
                                 <textarea class="form-control summernote" wire:model.defer="biography" rows="4"></textarea>
+                                <small class="text-muted">The full biography is shown on the staff member’s page.</small>
                                 @error('biography') <small class="text-danger">{{ $message }}</small> @enderror
                             </div>
                             <div class="mb-3">

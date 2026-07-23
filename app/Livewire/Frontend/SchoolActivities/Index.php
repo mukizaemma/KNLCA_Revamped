@@ -13,10 +13,13 @@ class Index extends Component
     public function render()
     {
         $header = PageHeader::where('page_key', 'school_activities')->first();
-        $activities = SchoolActivity::where('is_active', true)
-            ->whereNotNull('published_at')
-            ->where('published_at', '<=', now())
-            ->orderByDesc('published_at')
+        $activities = SchoolActivity::query()
+            ->where('is_active', true)
+            ->where(function ($q) {
+                $q->whereNull('published_at')
+                    ->orWhere('published_at', '<=', now());
+            })
+            ->orderByRaw('COALESCE(published_at, created_at) DESC')
             ->orderBy('sort_order')
             ->paginate(9);
 

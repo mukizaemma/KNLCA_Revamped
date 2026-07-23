@@ -23,8 +23,8 @@ class Home extends Component
             ->where('is_active', true)
             ->where('type', 'image')
             ->whereNotNull('image_path')
-            ->orderByDesc('is_featured')
-            ->orderBy('sort_order')
+            ->orderByDesc('created_at')
+            ->orderByDesc('id')
             ->limit(6)
             ->get();
 
@@ -58,8 +58,12 @@ class Home extends Component
 
         $activityImage = SchoolActivity::query()
             ->where('is_active', true)
+            ->where(function ($q) {
+                $q->whereNull('published_at')
+                    ->orWhere('published_at', '<=', now());
+            })
             ->whereNotNull('image_path')
-            ->orderByDesc('published_at')
+            ->orderByRaw('COALESCE(published_at, created_at) DESC')
             ->orderBy('sort_order')
             ->value('image_path');
 

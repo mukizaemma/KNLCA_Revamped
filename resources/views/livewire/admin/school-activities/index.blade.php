@@ -18,6 +18,10 @@
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
         @endif
+        <p class="text-muted small mb-3">
+            Active activities appear on the public <a href="{{ route('school-activities') }}" target="_blank">School Activities</a> page.
+            Set <strong>Published At</strong> (or leave the default) and keep <strong>Active</strong> on.
+        </p>
 
         <div class="table-responsive">
             <table class="table table-striped table-hover align-middle w-100">
@@ -85,14 +89,10 @@
                                 @error('title') <small class="text-danger">{{ $message }}</small> @enderror
                             </div>
                             <div class="mb-3">
-                                <label class="form-label">Excerpt (short summary)</label>
-                                <textarea class="form-control summernote" wire:model.defer="excerpt" rows="2"></textarea>
-                                @error('excerpt') <small class="text-danger">{{ $message }}</small> @enderror
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Content</label>
-                                <textarea class="form-control summernote" wire:model.defer="content" rows="6"></textarea>
-                                @error('content') <small class="text-danger">{{ $message }}</small> @enderror
+                                <label class="form-label">Description</label>
+                                <textarea class="form-control summernote" wire:model.defer="content" rows="8" data-summernote-height="280"></textarea>
+                                <small class="text-muted">Public list pages show a short preview; the full description appears on the activity page.</small>
+                                @error('content') <small class="text-danger d-block">{{ $message }}</small> @enderror
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Featured Image</label>
@@ -108,7 +108,8 @@
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label">Published At</label>
                                     <input type="datetime-local" class="form-control" wire:model.defer="published_at">
-                                    @error('published_at') <small class="text-danger">{{ $message }}</small> @enderror
+                                    <small class="text-muted">Leave blank to publish immediately. Future dates stay hidden until then.</small>
+                                    @error('published_at') <small class="text-danger d-block">{{ $message }}</small> @enderror
                                 </div>
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label">Sort Order</label>

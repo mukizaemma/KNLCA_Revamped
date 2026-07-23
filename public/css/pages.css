@@ -422,15 +422,20 @@
     box-shadow: var(--shadow-card);
     background: var(--white);
     transition: transform 0.2s;
+    text-decoration: none;
+    color: inherit;
 }
 .facility-card:hover { transform: translateY(-4px); }
 .facility-card__img-wrap {
+    position: relative;
     width: 100%;
     min-height: 240px;
     height: 280px;
     overflow: hidden;
 }
 .facility-card__img {
+    position: absolute;
+    inset: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
@@ -455,7 +460,15 @@
     font-size: 0.95rem;
     color: var(--text-muted);
     line-height: 1.55;
-    margin: 12px 20px 24px;
+    margin: 12px 20px 8px;
+    flex-grow: 1;
+}
+.facility-card__link {
+    display: inline-block;
+    margin: 0 20px 20px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--primary);
 }
 
 /* Contact */
@@ -671,11 +684,20 @@
     transform: translateY(-4px);
     box-shadow: var(--shadow-soft);
 }
-.activity-card__img-wrap { aspect-ratio: 16/10; overflow: hidden; }
+.activity-card__img-wrap {
+    position: relative;
+    aspect-ratio: 16/10;
+    min-height: 180px;
+    overflow: hidden;
+    background: linear-gradient(135deg, var(--cream), var(--cream-dark));
+}
 .activity-card__img {
+    position: absolute;
+    inset: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
+    display: block;
     transition: transform 0.3s;
 }
 .activity-card:hover .activity-card__img { transform: scale(1.03); }

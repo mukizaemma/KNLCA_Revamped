@@ -30,4 +30,13 @@ class SchoolActivity extends Model
     {
         return $this->hasMany(SchoolActivityImage::class)->orderBy('sort_order');
     }
+
+    /** Plain-text teaser for listing cards (from content, with excerpt fallback). */
+    public function shortDescription(int $limit = 120): string
+    {
+        $source = $this->content ?: ($this->excerpt ?? '');
+        $text = trim(preg_replace('/\s+/', ' ', strip_tags((string) $source)) ?? '');
+
+        return $text === '' ? '' : \Illuminate\Support\Str::limit($text, $limit);
+    }
 }

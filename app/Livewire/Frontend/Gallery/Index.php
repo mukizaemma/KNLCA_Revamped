@@ -16,7 +16,8 @@ class Index extends Component
         $items = MediaGalleryItem::where('is_active', true)
             ->where('type', 'image')
             ->whereNotNull('image_path')
-            ->orderBy('sort_order')
+            ->orderByDesc('created_at')
+            ->orderByDesc('id')
             ->get();
 
         $galleryLightboxImages = $items->map(fn ($i) => [

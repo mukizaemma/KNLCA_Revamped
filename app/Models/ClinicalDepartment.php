@@ -28,5 +28,13 @@ class ClinicalDepartment extends Model
     {
         return $this->hasMany(Doctor::class, 'clinical_department_id');
     }
+
+    /** Plain-text teaser for listing cards. */
+    public function shortDescription(int $limit = 100): string
+    {
+        $text = trim(preg_replace('/\s+/', ' ', strip_tags((string) ($this->description ?? ''))) ?? '');
+
+        return $text === '' ? '' : \Illuminate\Support\Str::limit($text, $limit);
+    }
 }
 

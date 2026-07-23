@@ -15,8 +15,14 @@
                     <p class="activity-single__date">{{ $activity->published_at->format('F j, Y') }}</p>
                 @endif
             </header>
-            @if($activity->content)
-                <div class="activity-single__content">{!! $activity->content !!}</div>
+            @if($activity->content || $activity->excerpt)
+                <div class="activity-single__content">
+                    @if($activity->content)
+                        {!! $activity->content !!}
+                    @else
+                        <p>{{ $activity->excerpt }}</p>
+                    @endif
+                </div>
             @endif
             @if($activity->galleryImages->isNotEmpty())
                 <section class="activity-gallery mt-5">
